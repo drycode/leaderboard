@@ -1,0 +1,12 @@
+.score-card {
+	border: 1px solid black;
+	border-radius: 5px;
+}
+
+.sc-name {
+	margin-left: 2em;
+}
+
+.sc-score {
+	margin-right: 2em;
+}
