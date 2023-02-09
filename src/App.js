@@ -1,9 +1,6 @@
 import { useEffect, useState, forwardRef } from 'react';
-import FlipMove from 'react-flip-move';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Container from 'react-bootstrap/Container';
-import players1 from './data1.json';
-import players2 from './data2.json';
 import './App.css';
 import './ScoreCard.css';
 const AWS = require('aws-sdk');
