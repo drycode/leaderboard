@@ -16,12 +16,12 @@ const setPlayers = async (callback) => {
 	setTimeout(() => setPlayers(callback), 2500);
 };
 
-const ScoreCard = forwardRef(({ player, ref }) => {
+const ScoreCard = forwardRef(({ props, ref }) => {
 	return (
-		<div className='score-card' key={player.email} ref={ref}>
+		<div className='score-card' ref={ref}>
 			<div className='d-flex justify-content-between'>
-				<div className='sc-name'>{player.name}</div>
-				<div className='sc-score align-self-end'>{player.score}</div>
+				<div className='sc-name'>{props.name}</div>
+				<div className='sc-score align-self-end'>{props.score}</div>
 			</div>
 		</div>
 	);
@@ -42,10 +42,14 @@ function App() {
 						<h2>Super Bowl LVII</h2>
 						<h1>Leaderboard</h1>
 					</div>
-					<div class='items'>
+					<div className='items'>
 						{/* <FlipMove> */}
-						{players.map((player) => {
-							return <ScoreCard player={player} />;
+						{players.map((player, index) => {
+							return (
+								<div key={player[index]}>
+									<ScoreCard props={player} />
+								</div>
+							);
 						})}
 						{/* </FlipMove> */}
 					</div>
