@@ -3,9 +3,11 @@ import './ScoreCard.css';
 
 function ScoreCard({ player }) {
 	return (
-		<div className='score-card d-flex' key={player.email}>
-			<span className='sc-name'>{player.name}</span>
-			<span className='sc-score'>{player.score}</span>
+		<div className='score-card' key={player.email}>
+			<div className='d-flex justify-content-between'>
+				<div className='sc-name'>{player.name}</div>
+				<div className='sc-score align-self-end'>{player.score}</div>
+			</div>
 		</div>
 	);
 }
