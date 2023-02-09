@@ -10,7 +10,9 @@ function App() {
 		<div className='App vh-100'>
 			<Container id='main-container' className='mx-auto d-flex justify-content-center'>
 				<div className='flex-col align-items-center'>
-					<h1 id='page-title'>Leaderboard</h1>
+					<h1 id='page-title' title='GO BIRDS!'>
+						Leaderboard
+					</h1>
 					<div id='results'>
 						{players.map((player) => {
 							console.log('player:');

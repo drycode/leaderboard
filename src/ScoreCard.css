@@ -1,7 +1,11 @@
 .score-card {
-	border: 1px solid black;
+	border: 2px solid rgb(93, 115, 85);
 	border-radius: 5px;
 	margin-bottom: 0.5em;
+}
+
+.score-card:hover {
+	border: 2px solid rgb(129, 158, 120);
 }
 
 .sc-name {
