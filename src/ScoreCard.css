@@ -1,10 +1,12 @@
 .score-card {
 	border: 1px solid black;
 	border-radius: 5px;
+	margin-bottom: 0.5em;
 }
 
 .sc-name {
 	margin-left: 2em;
+	margin-right: 3em;
 }
 
 .sc-score {
@@ -15,33 +17,3 @@
 	font-family: 'Graduate', Arial, Helvetica, sans-serif;
 	font-size: 20px;
 }
-
-/* @media (min-width: 576px) {
-	.score-card {
-		width: 50%;
-	}
-}
-
-@media (min-width: 768px) {
-	.score-card {
-		width: 50%;
-	}
-}
-
-@media (min-width: 992px) {
-	.score-card {
-		width: 50%;
-	}
-}
-
-@media (min-width: 1200px) {
-	.score-card {
-		width: 50%;
-	}
-}
-
-@media (min-width: 1400px) {
-	.score-card {
-		width: 50%;
-	}
-} */
