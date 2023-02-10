@@ -1,16 +1,11 @@
 [
 	{
-		"score": 100000,
-		"email": "christinamgiancola@gmail.com",
-		"name": "Christina Giancola"
+		"score": 100,
+		"email": "tredshaw2424@gmail.com",
+		"name": "Tim Redshaw"
 	},
 	{
-		"score": 86,
-		"email": "mcn4xr@virginia.edu",
-		"name": "Matthew Novak"
-	},
-	{
-		"score": 85,
+		"score": 94,
 		"email": "matt.fair90@gmail.com",
 		"name": "Matt Fair"
 	},
@@ -20,14 +15,14 @@
 		"name": "Bob Belcher"
 	},
 	{
-		"score": 69,
+		"score": 47,
 		"email": "eliottjbryson@gmail.com",
 		"name": "Eliott Bryson"
 	},
 	{
-		"score": 52,
-		"email": "tredshaw2424@gmail.com",
-		"name": "Tim Redshaw"
+		"score": 46,
+		"email": "mcn4xr@virginia.edu",
+		"name": "Matthew Novak"
 	},
 	{
 		"score": 43,
@@ -55,7 +50,7 @@
 		"name": "Alex Santoliquido"
 	},
 	{
-		"score": 53,
+		"score": 40,
 		"email": "giancola@ymail.com",
 		"name": "Mia Giancola"
 	},
@@ -263,6 +258,11 @@
 		"score": 30,
 		"email": "danyoungmusic93@gmail.com",
 		"name": "Daniel Young"
+	},
+	{
+		"score": 30,
+		"email": "christinamgiancola@gmail.com",
+		"name": "Christina Giancola"
 	},
 	{
 		"score": 29,
