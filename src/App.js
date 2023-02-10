@@ -1,8 +1,9 @@
-import { useEffect, useState, forwardRef } from 'react';
+import { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Container from 'react-bootstrap/Container';
 import './App.css';
 import './ScoreCard.css';
+import FlipMove from 'react-flip-move';
 const AWS = require('aws-sdk');
 
 AWS.config.region = 'us-east-1'; // Region
@@ -10,17 +11,6 @@ AWS.config.credentials = new AWS.CognitoIdentityCredentials({
   IdentityPoolId: 'us-east-1:70e8bed7-eaf4-40e8-83fc-d03db725c61f',
 });
 const client = new AWS.S3();
-
-const ScoreCard = forwardRef(({ props, ref }) => {
-  return (
-    <div className='score-card' ref={ref}>
-      <div className='d-flex justify-content-between'>
-        <div className='sc-name'>{props.name}</div>
-        <div className='sc-score align-self-end'>{props.score}</div>
-      </div>
-    </div>
-  );
-});
 
 const _getPropSheetScores = () => {
   const bucket = 'prop-sheet';
@@ -61,16 +51,21 @@ function App() {
             <h2>Super Bowl LVII</h2>
             <h1>Leaderboard</h1>
           </div>
-          <div className='items'>
-            {/* <FlipMove> */}
-            {players.map((player, index) => {
-              return (
-                <div key={player[index]}>
-                  <ScoreCard props={player} />
-                </div>
-              );
-            })}
-            {/* </FlipMove> */}
+          <div id='items'>
+            <FlipMove>
+              {players.map((player) => {
+                return (
+                  <div className='score-card' key={player.email}>
+                    <div className='d-flex justify-content-between'>
+                      <div className='sc-name'>{player.name}</div>
+                      <div className='sc-score align-self-end'>
+                        {player.score}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </FlipMove>
           </div>
         </div>
       </Container>
