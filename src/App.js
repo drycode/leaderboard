@@ -58,7 +58,7 @@ function App() {
                   <div className='score-card' key={player.email}>
                     <div className='d-flex justify-content-between'>
                       <div className='sc-name'>{player.name}</div>
-                      <div className='sc-score align-self-end'>
+                      <div className='sc-score align-self-center'>
                         {player.score}
                       </div>
                     </div>
