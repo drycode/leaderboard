@@ -1,57 +1,90 @@
-@import url('https://fonts.googleapis.com/css2?family=Graduate&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Graduate&display=swap");
 
 /* * {
 	outline: 1px solid orange;
 } */
 
 body {
-	text-align: center;
-	background-color: rgb(3, 47, 3);
-	color: white;
+  text-align: center;
+  background-color: rgb(3, 47, 3);
+  color: white;
 }
 
 @media (min-width: 601px) {
-	body {
-		background-image: url('./assets/jason-dent-QSIq9ncQkzY-unsplash.jpg');
-		background-size: cover;
-		background-repeat: no-repeat;
-		background-attachment: fixed;
-	}
+  body {
+    background-image: url("./assets/jason-dent-QSIq9ncQkzY-unsplash.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
 }
 
 @media (max-width: 600px) {
-	body {
-		background-color: rgb(3, 47, 3);
-	}
+  body {
+    background-color: rgb(3, 47, 3);
+  }
 }
 
 #main-container {
-	padding-top: 3em;
-	padding-bottom: 4em;
+  padding-top: 3rem;
+  padding-bottom: 4rem;
 }
 
 #page-title {
-	text-transform: uppercase;
-	font-family: 'Graduate', Arial, Helvetica, sans-serif;
-	text-shadow: 0 0 3px #030303;
-	margin-bottom: 0.35em;
+  text-transform: uppercase;
+  font-family: "Graduate", Arial, Helvetica, sans-serif;
+  text-shadow: 0 0 3px #030303;
+  margin-bottom: 0.35em;
 }
 
 #page-title > h1 {
-	font-size: 3rem;
+  font-size: 3rem;
 }
 
 #page-title > h2 {
-	font-size: 2rem;
+  font-size: 2rem;
 }
 
 #main-col {
-	background-color: rgba(1, 62, 1, 0.9);
-	border: 1px solid rgb(17, 85, 11);
-	box-shadow: 0px 2px 15px rgb(31, 31, 31);
-	/* mask: radial-gradient(circle 40px at top left, #0000 98%, red) top left; */
-	padding-left: 3.25em;
-	padding-right: 3.25em;
-	padding-top: 1em;
-	padding-bottom: 2em;
+  background-color: rgba(1, 62, 1, 0.9);
+  border: 1px solid rgb(17, 85, 11);
+  box-shadow: 0px 2px 15px rgb(31, 31, 31);
+  /* mask: radial-gradient(circle 40px at top left, #0000 98%, red) top left; */
+  padding-left: 3.25em;
+  padding-right: 3.25em;
+  padding-top: 1em;
+  padding-bottom: 2em;
+}
+
+/* Container for the ticker */
+.ticker-container {
+  width: 100%;
+  overflow: hidden; /* Hide anything that overflows */
+  position: relative; /* Ensure we can position the ticker items inside */
+}
+
+/* Track that holds the ticker items */
+.ticker-track {
+  width: max-content;
+  display: flex; /* Arrange items in a row */
+  animation: ticker-move linear infinite; /* Apply animation with duration */
+}
+
+/* Individual ticker item styling */
+.ticker-item {
+  white-space: nowrap; /* Ensure text doesn't break */
+  color: white; /* Text color */
+  font-family: "Graduate", Arial, Helvetica, sans-serif;
+  font-size: 20px;
+  margin-right: 3em; /* Space between items */
+}
+
+/* Animation for the ticker effect */
+@keyframes ticker-move {
+  0% {
+    transform: translateX(600px);
+  }
+  100% {
+    transform: translateX(-100%); /* End off to the left */
+  }
 }
