@@ -97,7 +97,7 @@ function App() {
       >
         <div id="main-col" className="flex-col align-items-center w-100">
           <div id="page-title" title="GO BIRDS">
-            <h2>Super Bowl LVII</h2>
+            <h2>Super Bowl LIX</h2>
             <h2 className="align-items-center">Leaderboard</h2>
           </div>
 
