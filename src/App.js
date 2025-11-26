@@ -6,13 +6,13 @@ import "./ScoreCard.css";
 import FlipMove from "react-flip-move";
 import React from "react";
 
-// API endpoints - update these after deployment
+// API endpoints
 const API_BASE_URL =
   process.env.REACT_APP_API_URL ||
-  "https://YOUR_API_ID.execute-api.us-east-1.amazonaws.com/prod";
+  "https://ghqw1wy2td.execute-api.us-east-1.amazonaws.com/prod";
 const WEBSOCKET_URL =
   process.env.REACT_APP_WS_URL ||
-  "wss://YOUR_WS_API_ID.execute-api.us-east-1.amazonaws.com/prod";
+  "wss://pg0vf88roi.execute-api.us-east-1.amazonaws.com/prod";
 
 const Ticker = ({ items, speed = 7 }) => {
   const totalChars = items.reduce(
