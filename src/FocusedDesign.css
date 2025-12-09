@@ -1,0 +1,460 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ==================== FOCUSED DESIGN (Concept 7) ==================== */
+/* GitHub-inspired dark theme with hero score as primary focus */
+
+body {
+  background: #0d1117;
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.focused-app {
+  min-height: 100vh;
+  background: #0d1117;
+  color: #c9d1d9;
+}
+
+.focused-container {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+  padding-bottom: 100px;
+}
+
+/* Header - minimal */
+.focused-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.focused-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #8b949e;
+}
+
+.focused-live {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: #3fb950;
+  font-weight: 500;
+}
+
+.focused-live.disconnected {
+  color: #f0883e;
+}
+
+.focused-live-dot {
+  width: 8px;
+  height: 8px;
+  background: #3fb950;
+  border-radius: 50%;
+  animation: focusedPulse 2s infinite;
+}
+
+.focused-live.disconnected .focused-live-dot {
+  background: #f0883e;
+  animation: none;
+}
+
+@keyframes focusedPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.9); }
+}
+
+/* Hero Score - THE main focus */
+.focused-hero {
+  text-align: center;
+  padding: 2rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.focused-hero-name {
+  font-size: 1rem;
+  color: #8b949e;
+  margin-bottom: 0.5rem;
+}
+
+.focused-hero-score {
+  font-size: 5rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.focused-hero-label {
+  font-size: 0.85rem;
+  color: #8b949e;
+  margin-bottom: 1rem;
+}
+
+.focused-hero-rank {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 50px;
+  padding: 0.6rem 1.25rem;
+  font-size: 0.95rem;
+  color: #c9d1d9;
+}
+
+.focused-hero-rank strong {
+  color: #fff;
+}
+
+.focused-hero-trend {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.focused-hero-trend.up {
+  color: #3fb950;
+}
+
+.focused-hero-trend.down {
+  color: #f85149;
+}
+
+.focused-hero-trend.same {
+  color: #8b949e;
+}
+
+/* No selection state */
+.focused-no-selection {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.focused-no-selection-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.focused-no-selection-text {
+  color: #8b949e;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+.focused-find-btn {
+  background: #238636;
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.focused-find-btn:hover {
+  background: #2ea043;
+}
+
+/* Expandable sections */
+.focused-section {
+  margin-bottom: 0.75rem;
+}
+
+.focused-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.focused-section-header:hover {
+  background: #1c2128;
+  border-color: #484f58;
+}
+
+.focused-section-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #c9d1d9;
+}
+
+.focused-section-meta {
+  font-size: 0.8rem;
+  color: #8b949e;
+  margin-left: auto;
+  margin-right: 0.75rem;
+}
+
+.focused-section-arrow {
+  color: #484f58;
+  transition: transform 0.2s;
+  font-size: 0.8rem;
+}
+
+.focused-section.expanded .focused-section-arrow {
+  transform: rotate(180deg);
+}
+
+.focused-section.expanded .focused-section-header {
+  border-radius: 12px 12px 0 0;
+}
+
+.focused-section-content {
+  display: none;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  overflow: hidden;
+}
+
+.focused-section.expanded .focused-section-content {
+  display: block;
+}
+
+/* Search - appears when leaderboard expanded */
+.focused-search {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #30363d;
+}
+
+.focused-search input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  color: #c9d1d9;
+  font-size: 0.9rem;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.focused-search input::placeholder {
+  color: #484f58;
+}
+
+.focused-search input:focus {
+  outline: none;
+  border-color: #58a6ff;
+}
+
+/* Leaderboard rows */
+.focused-rows {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.focused-row {
+  display: flex;
+  align-items: center;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid #21262d;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.focused-row:last-child {
+  border-bottom: none;
+}
+
+.focused-row:hover {
+  background: #1c2128;
+}
+
+.focused-row.me {
+  background: linear-gradient(135deg, #1f3a2f 0%, #162b22 100%);
+}
+
+.focused-row.me:hover {
+  background: linear-gradient(135deg, #254735 0%, #1c3529 100%);
+}
+
+.focused-rank {
+  width: 32px;
+  font-size: 0.85rem;
+  color: #8b949e;
+  font-weight: 500;
+}
+
+.focused-row:nth-child(1) .focused-rank { color: #ffd700; font-weight: 600; }
+.focused-row:nth-child(2) .focused-rank { color: #c0c0c0; font-weight: 600; }
+.focused-row:nth-child(3) .focused-rank { color: #cd7f32; font-weight: 600; }
+
+.focused-name {
+  flex: 1;
+  color: #c9d1d9;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.focused-row.me .focused-name {
+  color: #fff;
+  font-weight: 600;
+}
+
+.focused-trend {
+  font-size: 0.75rem;
+  min-width: 45px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.focused-trend.up { color: #3fb950; }
+.focused-trend.down { color: #f85149; }
+.focused-trend.same { color: #484f58; }
+
+.focused-score {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  min-width: 36px;
+  text-align: right;
+}
+
+/* Pagination within leaderboard */
+.focused-pagination {
+  padding: 0.75rem 1.25rem;
+  text-align: center;
+  border-top: 1px solid #21262d;
+}
+
+.focused-show-more {
+  background: transparent;
+  border: 1px solid #30363d;
+  color: #58a6ff;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.focused-show-more:hover {
+  background: #21262d;
+  border-color: #484f58;
+}
+
+/* Question items */
+.focused-questions {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.focused-question {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #21262d;
+}
+
+.focused-question:last-child {
+  border-bottom: none;
+}
+
+.focused-question-text {
+  font-size: 0.85rem;
+  color: #8b949e;
+  margin-bottom: 0.3rem;
+}
+
+.focused-answer {
+  font-size: 0.95rem;
+  color: #3fb950;
+  font-weight: 500;
+}
+
+.focused-time {
+  font-size: 0.75rem;
+  color: #484f58;
+  margin-top: 0.25rem;
+}
+
+/* Loading state */
+.focused-loading {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: #8b949e;
+}
+
+/* Error state */
+.focused-error {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #f85149;
+  background: rgba(248, 81, 73, 0.1);
+  border: 1px solid rgba(248, 81, 73, 0.3);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+/* Clear selection button in hero */
+.focused-hero-clear {
+  background: transparent;
+  border: 1px solid #30363d;
+  color: #8b949e;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: all 0.15s;
+}
+
+.focused-hero-clear:hover {
+  background: #21262d;
+  color: #c9d1d9;
+  border-color: #484f58;
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .focused-container {
+    padding: 1rem 0.75rem;
+  }
+
+  .focused-hero-score {
+    font-size: 4rem;
+  }
+
+  .focused-section-header {
+    padding: 0.85rem 1rem;
+  }
+
+  .focused-row {
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* Scrollbar styling */
+.focused-rows::-webkit-scrollbar,
+.focused-questions::-webkit-scrollbar {
+  width: 6px;
+}
+
+.focused-rows::-webkit-scrollbar-track,
+.focused-questions::-webkit-scrollbar-track {
+  background: #161b22;
+}
+
+.focused-rows::-webkit-scrollbar-thumb,
+.focused-questions::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 3px;
+}
+
+.focused-rows::-webkit-scrollbar-thumb:hover,
+.focused-questions::-webkit-scrollbar-thumb:hover {
+  background: #484f58;
+}
