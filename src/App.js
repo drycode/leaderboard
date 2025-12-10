@@ -175,14 +175,16 @@ const ExpandableSection = ({ title, meta, children, defaultExpanded = false }) =
   );
 };
 
+// Check if on mobile (matches CSS breakpoint)
+const isMobile = () => window.innerWidth <= 480;
+
 function App() {
   const [players, setPlayers] = useState([]);
   const [trends, setTrends] = useState({});
   const [latestQuestions, setQuestions] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [displayCount, setDisplayCount] = useState(20);
-  const [searchQuery, setSearchQuery] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
   const [myAnswers, setMyAnswers] = useState(null);
   const [answersLoading, setAnswersLoading] = useState(false);
   const [showNewUserModal, setShowNewUserModal] = useState(false);
@@ -285,14 +287,12 @@ function App() {
     return url.toString();
   };
 
-  // Filter and paginate players
+  // Filter players by search query
   const filteredPlayers = searchQuery
     ? players.filter((p) =>
         p.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : players;
-  const displayedPlayers = filteredPlayers.slice(0, displayCount);
-  const hasMore = displayCount < filteredPlayers.length;
 
   // Compute ranks once for all players
   const rankMap = computeRanks(players);
@@ -429,7 +429,7 @@ function App() {
             <ExpandableSection
               title="🏆 Leaderboard"
               meta={`${players.length} players`}
-              defaultExpanded={true}
+              defaultExpanded={!isMobile()}
             >
               <div className="focused-search">
                 <input
@@ -440,7 +440,7 @@ function App() {
                 />
               </div>
               <div className="focused-rows">
-                {displayedPlayers.map((player, idx) => {
+                {filteredPlayers.map((player, idx) => {
                   const rankInfo = rankMap.get(player.score);
                   const rank = rankInfo?.rank ?? idx + 1;
                   const tieCount = rankInfo?.tieCount ?? 1;
@@ -470,16 +470,6 @@ function App() {
                   );
                 })}
               </div>
-              {hasMore && (
-                <div className="focused-pagination">
-                  <button
-                    className="focused-show-more"
-                    onClick={() => setDisplayCount((prev) => prev + 20)}
-                  >
-                    Show more ({filteredPlayers.length - displayCount} remaining)
-                  </button>
-                </div>
-              )}
             </ExpandableSection>
 
             {/* Questions Section */}
@@ -491,10 +481,16 @@ function App() {
                 {sortedQuestions.map((q, idx) => {
                   // Find user's answer for this question
                   const userAnswer = myAnswers?.find(a => a.question === q.question);
+                  const points = q.points || 1;
                   return (
                     <div key={idx} className="focused-question">
                       <div className="focused-question-text">{q.question}</div>
-                      <div className="focused-answer">{q.answer}</div>
+                      <div className="focused-answer-row">
+                        <span className="focused-answer">{q.answer}</span>
+                        <span className={`focused-points ${points > 1 ? "bonus" : ""}`}>
+                          {points} pt{points !== 1 ? "s" : ""}
+                        </span>
+                      </div>
                       {userAnswer && (
                         <div className={`focused-question-my-answer ${
                           userAnswer.is_correct ? "correct" : "incorrect"
