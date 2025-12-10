@@ -11,7 +11,12 @@ body {
 
 .focused-app {
   min-height: 100vh;
-  background: #0d1117;
+  background:
+    linear-gradient(to bottom, rgba(13, 17, 23, 0.92), rgba(13, 17, 23, 0.96)),
+    url('./assets/jason-dent-QSIq9ncQkzY-unsplash.jpg');
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
   color: #c9d1d9;
 }
 
@@ -325,29 +330,6 @@ body {
   text-align: right;
 }
 
-/* Pagination within leaderboard */
-.focused-pagination {
-  padding: 0.75rem 1.25rem;
-  text-align: center;
-  border-top: 1px solid #21262d;
-}
-
-.focused-show-more {
-  background: transparent;
-  border: 1px solid #30363d;
-  color: #58a6ff;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.focused-show-more:hover {
-  background: #21262d;
-  border-color: #484f58;
-}
-
 /* Question items */
 .focused-questions {
   max-height: 350px;
@@ -369,10 +351,30 @@ body {
   margin-bottom: 0.3rem;
 }
 
+.focused-answer-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .focused-answer {
   font-size: 0.95rem;
   color: #3fb950;
   font-weight: 500;
+}
+
+.focused-points {
+  font-size: 0.7rem;
+  color: #8b949e;
+  background: #21262d;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+.focused-points.bonus {
+  color: #f0883e;
+  background: rgba(240, 136, 62, 0.15);
+  font-weight: 600;
 }
 
 .focused-time {
@@ -434,6 +436,19 @@ body {
 
   .focused-row {
     padding: 0.75rem 1rem;
+  }
+
+  /* Reduce section heights on mobile to fit all accordions on screen */
+  .focused-rows {
+    max-height: 250px;
+  }
+
+  .focused-questions {
+    max-height: 200px;
+  }
+
+  .focused-my-answers {
+    max-height: 250px;
   }
 }
 
