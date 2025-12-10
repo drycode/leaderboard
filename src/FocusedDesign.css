@@ -458,3 +458,246 @@ body {
 .focused-questions::-webkit-scrollbar-thumb:hover {
   background: #484f58;
 }
+
+/* ==================== AUTH BUTTON ==================== */
+.focused-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.focused-auth-btn {
+  background: transparent;
+  border: 1px solid #30363d;
+  color: #8b949e;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.focused-auth-btn:hover {
+  border-color: #58a6ff;
+  color: #58a6ff;
+}
+
+.focused-auth-btn.focused-auth-signin {
+  background: #238636;
+  border-color: #238636;
+  color: #fff;
+}
+
+.focused-auth-btn.focused-auth-signin:hover {
+  background: #2ea043;
+  border-color: #2ea043;
+}
+
+/* ==================== MY ANSWERS SECTION ==================== */
+.focused-my-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 0.75rem;
+}
+
+.focused-answer-row {
+  background: #161b22;
+  border: 1px solid #21262d;
+  border-radius: 8px;
+  padding: 0.75rem;
+  border-left: 3px solid #30363d;
+}
+
+.focused-answer-row.correct {
+  border-left-color: #3fb950;
+  background: rgba(63, 185, 80, 0.05);
+}
+
+.focused-answer-row.incorrect {
+  border-left-color: #f85149;
+  background: rgba(248, 81, 73, 0.05);
+}
+
+.focused-answer-row.pending {
+  border-left-color: #8b949e;
+}
+
+.focused-answer-question {
+  font-size: 0.85rem;
+  color: #c9d1d9;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.focused-answer-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  color: #8b949e;
+}
+
+.focused-answer-yours strong {
+  color: #58a6ff;
+}
+
+.focused-answer-official strong {
+  color: #c9d1d9;
+}
+
+.focused-answer-result {
+  font-weight: 600;
+}
+
+.focused-answer-row.correct .focused-answer-result {
+  color: #3fb950;
+}
+
+.focused-answer-row.incorrect .focused-answer-result {
+  color: #f85149;
+}
+
+.focused-no-answers {
+  text-align: center;
+  color: #8b949e;
+  padding: 2rem;
+  font-size: 0.9rem;
+}
+
+/* Tie info styling */
+.focused-tie-info {
+  color: #8b949e;
+  font-weight: 400;
+}
+
+/* Scrollbar for My Answers */
+.focused-my-answers::-webkit-scrollbar {
+  width: 6px;
+}
+
+.focused-my-answers::-webkit-scrollbar-track {
+  background: #161b22;
+}
+
+.focused-my-answers::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 3px;
+}
+
+.focused-my-answers::-webkit-scrollbar-thumb:hover {
+  background: #484f58;
+}
+
+/* User's answer shown in Latest Questions */
+.focused-question-my-answer {
+  font-size: 0.8rem;
+  margin-top: 0.35rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.focused-question-my-answer.correct {
+  color: #3fb950;
+  background: rgba(63, 185, 80, 0.1);
+}
+
+.focused-question-my-answer.incorrect {
+  color: #f85149;
+  background: rgba(248, 81, 73, 0.1);
+}
+
+.focused-question-my-answer strong {
+  color: inherit;
+}
+
+/* ==================== NEW USER MODAL ==================== */
+.focused-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.focused-modal {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+
+.focused-modal-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.focused-modal-title {
+  color: #c9d1d9;
+  font-size: 1.5rem;
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+}
+
+.focused-modal-text {
+  color: #8b949e;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.focused-modal-email {
+  color: #58a6ff;
+}
+
+.focused-modal-btn {
+  display: inline-block;
+  background: #238636;
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease;
+  margin-bottom: 1rem;
+}
+
+.focused-modal-btn:hover {
+  background: #2ea043;
+}
+
+.focused-modal-close {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #8b949e;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  font-family: inherit;
+}
+
+.focused-modal-close:hover {
+  color: #c9d1d9;
+}
+
+.focused-modal-note {
+  color: #8b949e;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}

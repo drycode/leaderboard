@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import "./FocusedDesign.css";
 import React from "react";
+import { useAuth } from "./hooks/useAuth";
 
 // API endpoints
 const API_BASE_URL =
@@ -10,10 +11,26 @@ const WEBSOCKET_URL =
   process.env.REACT_APP_WS_URL ||
   "wss://pg0vf88roi.execute-api.us-east-1.amazonaws.com/prod";
 
+// Google Form configuration
+const GOOGLE_FORM_URL = process.env.REACT_APP_GOOGLE_FORM_URL || "";
+const GOOGLE_FORM_EMAIL_ENTRY = process.env.REACT_APP_GOOGLE_FORM_EMAIL_ENTRY || "";
+
 // Fetch initial scores via REST API
 const fetchInitialData = async () => {
   const response = await fetch(`${API_BASE_URL}/scores`);
   if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return response.json();
+};
+
+// Fetch user's answers
+const fetchUserAnswers = async (email) => {
+  const response = await fetch(`${API_BASE_URL}/answers?email=${encodeURIComponent(email)}`);
+  if (!response.ok) {
+    if (response.status === 404) {
+      return null; // User not found
+    }
     throw new Error(`HTTP error! status: ${response.status}`);
   }
   return response.json();
@@ -84,6 +101,29 @@ const useWebSocket = (url, onMessage) => {
   return { isConnected, ws: wsRef.current };
 };
 
+// Compute standard competition ranks with tie counts
+// Example: scores [10, 8, 8, 5] -> Map { 10 => {rank: 1, tieCount: 1}, 8 => {rank: 2, tieCount: 2}, 5 => {rank: 4, tieCount: 1} }
+const computeRanks = (players) => {
+  const scoreCounts = {};
+  players.forEach((p) => {
+    scoreCounts[p.score] = (scoreCounts[p.score] || 0) + 1;
+  });
+
+  const uniqueScores = [...new Set(players.map((p) => p.score))].sort(
+    (a, b) => b - a
+  );
+
+  const rankMap = new Map();
+  let currentRank = 1;
+  uniqueScores.forEach((score) => {
+    const count = scoreCounts[score];
+    rankMap.set(score, { rank: currentRank, tieCount: count });
+    currentRank += count; // Skip ranks for ties
+  });
+
+  return rankMap;
+};
+
 // Format time ago for questions
 const formatTimeAgo = (timestamp) => {
   if (!timestamp) return "";
@@ -143,6 +183,12 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [displayCount, setDisplayCount] = useState(20);
   const [searchQuery, setSearchQuery] = useState("");
+  const [myAnswers, setMyAnswers] = useState(null);
+  const [answersLoading, setAnswersLoading] = useState(false);
+  const [showNewUserModal, setShowNewUserModal] = useState(false);
+
+  // Auth state
+  const { user, isAuthenticated, signIn, signOut, isLoading: authLoading } = useAuth();
 
   // Selected player (persisted to localStorage)
   const [selectedEmail, setSelectedEmail] = useState(
@@ -198,6 +244,47 @@ function App() {
     localStorage.removeItem("selectedEmail");
   };
 
+  // Auto-select user when authenticated and load their answers
+  useEffect(() => {
+    if (isAuthenticated && user && players.length > 0) {
+      const matchedPlayer = players.find((p) => p.email === user.email);
+
+      if (matchedPlayer) {
+        // User found in leaderboard - auto-select and load answers
+        if (selectedEmail !== user.email) {
+          handlePlayerSelect(user.email);
+        }
+
+        // Fetch user's answers
+        const loadAnswers = async () => {
+          setAnswersLoading(true);
+          try {
+            const data = await fetchUserAnswers(user.email);
+            setMyAnswers(data?.answers || null);
+          } catch (err) {
+            console.error("Failed to fetch answers:", err);
+          } finally {
+            setAnswersLoading(false);
+          }
+        };
+        loadAnswers();
+      } else {
+        // User NOT in leaderboard - show form redirect modal
+        setShowNewUserModal(true);
+      }
+    }
+  }, [isAuthenticated, user, players, selectedEmail]);
+
+  // Build Google Form URL with pre-filled email
+  const getFormUrl = () => {
+    if (!GOOGLE_FORM_URL || !user?.email) return GOOGLE_FORM_URL;
+    const url = new URL(GOOGLE_FORM_URL);
+    if (GOOGLE_FORM_EMAIL_ENTRY) {
+      url.searchParams.set(GOOGLE_FORM_EMAIL_ENTRY, user.email);
+    }
+    return url.toString();
+  };
+
   // Filter and paginate players
   const filteredPlayers = searchQuery
     ? players.filter((p) =>
@@ -207,27 +294,80 @@ function App() {
   const displayedPlayers = filteredPlayers.slice(0, displayCount);
   const hasMore = displayCount < filteredPlayers.length;
 
+  // Compute ranks once for all players
+  const rankMap = computeRanks(players);
+
   // Find selected player and their rank
   const selectedPlayer = players.find((p) => p.email === selectedEmail);
-  const selectedRank = selectedPlayer
-    ? players.findIndex((p) => p.email === selectedEmail) + 1
-    : null;
+  const selectedRankInfo = selectedPlayer ? rankMap.get(selectedPlayer.score) : null;
+  const selectedRank = selectedRankInfo?.rank ?? null;
+  const selectedTieCount = selectedRankInfo?.tieCount ?? 1;
   const selectedTrend = selectedEmail ? trends[selectedEmail] : null;
 
-  // Sort questions by most recent
+  // Sort questions by most recent, filter out unanswered
   const sortedQuestions = [...latestQuestions]
+    .filter((q) => q.answer)
     .sort((a, b) => parseInt(b.updated) - parseInt(a.updated))
     .slice(0, 10);
 
   return (
     <div className="focused-app">
+      {/* New User Modal */}
+      {showNewUserModal && (
+        <div className="focused-modal-overlay" onClick={() => setShowNewUserModal(false)}>
+          <div className="focused-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="focused-modal-icon">🏈</div>
+            <h2 className="focused-modal-title">Welcome!</h2>
+            <p className="focused-modal-text">
+              It looks like you haven't filled out your prop sheet yet.
+              {user?.email && (
+                <span className="focused-modal-email"> ({user.email})</span>
+              )}
+            </p>
+            {GOOGLE_FORM_URL ? (
+              <a
+                href={getFormUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="focused-modal-btn"
+              >
+                Fill Out Prop Sheet
+              </a>
+            ) : (
+              <p className="focused-modal-note">
+                Contact the organizer to get your prop sheet link.
+              </p>
+            )}
+            <button
+              className="focused-modal-close"
+              onClick={() => setShowNewUserModal(false)}
+            >
+              Maybe later
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="focused-container">
         {/* Header */}
         <div className="focused-header">
           <span className="focused-title">Super Bowl LIX</span>
-          <div className={`focused-live ${isConnected ? "" : "disconnected"}`}>
-            <span className="focused-live-dot"></span>
-            {isConnected ? "Live" : "Reconnecting..."}
+          <div className="focused-header-right">
+            <div className={`focused-live ${isConnected ? "" : "disconnected"}`}>
+              <span className="focused-live-dot"></span>
+              {isConnected ? "Live" : "Reconnecting..."}
+            </div>
+            {!authLoading && (
+              isAuthenticated ? (
+                <button className="focused-auth-btn" onClick={signOut}>
+                  Sign Out
+                </button>
+              ) : (
+                <button className="focused-auth-btn focused-auth-signin" onClick={signIn}>
+                  Sign In
+                </button>
+              )
+            )}
           </div>
         </div>
 
@@ -245,7 +385,13 @@ function App() {
                 <div className="focused-hero-label">points</div>
                 <div className="focused-hero-rank">
                   <span>
-                    Rank <strong>#{selectedRank}</strong> of {players.length}
+                    Rank <strong>#{selectedRank}</strong>
+                    {selectedTieCount > 1 && (
+                      <span className="focused-tie-info">
+                        {" "}(tied with {selectedTieCount - 1} other{selectedTieCount > 2 ? "s" : ""})
+                      </span>
+                    )}
+                    {" "}of {players.length}
                   </span>
                   <TrendIndicator
                     trend={selectedTrend}
@@ -283,7 +429,7 @@ function App() {
             <ExpandableSection
               title="🏆 Leaderboard"
               meta={`${players.length} players`}
-              defaultExpanded={!selectedPlayer}
+              defaultExpanded={true}
             >
               <div className="focused-search">
                 <input
@@ -295,7 +441,9 @@ function App() {
               </div>
               <div className="focused-rows">
                 {displayedPlayers.map((player, idx) => {
-                  const rank = players.findIndex((p) => p.email === player.email) + 1;
+                  const rankInfo = rankMap.get(player.score);
+                  const rank = rankInfo?.rank ?? idx + 1;
+                  const tieCount = rankInfo?.tieCount ?? 1;
                   const isMe = player.email === selectedEmail;
                   const playerTrend = trends[player.email];
 
@@ -312,7 +460,9 @@ function App() {
                         }
                       }}
                     >
-                      <span className="focused-rank">{rank}</span>
+                      <span className="focused-rank">
+                        {tieCount > 1 ? `T-${rank}` : rank}
+                      </span>
                       <span className="focused-name">{player.name}</span>
                       <TrendIndicator trend={playerTrend} />
                       <span className="focused-score">{player.score}</span>
@@ -338,15 +488,75 @@ function App() {
               meta={`${sortedQuestions.length} answered`}
             >
               <div className="focused-questions">
-                {sortedQuestions.map((q, idx) => (
-                  <div key={idx} className="focused-question">
-                    <div className="focused-question-text">{q.question}</div>
-                    <div className="focused-answer">{q.answer || "TBD"}</div>
-                    <div className="focused-time">{formatTimeAgo(q.updated)}</div>
-                  </div>
-                ))}
+                {sortedQuestions.map((q, idx) => {
+                  // Find user's answer for this question
+                  const userAnswer = myAnswers?.find(a => a.question === q.question);
+                  return (
+                    <div key={idx} className="focused-question">
+                      <div className="focused-question-text">{q.question}</div>
+                      <div className="focused-answer">{q.answer}</div>
+                      {userAnswer && (
+                        <div className={`focused-question-my-answer ${
+                          userAnswer.is_correct ? "correct" : "incorrect"
+                        }`}>
+                          You picked: <strong>{userAnswer.user_answer || "—"}</strong>
+                          {userAnswer.is_correct ? " ✓" : " ✗"}
+                        </div>
+                      )}
+                      <div className="focused-time">{formatTimeAgo(q.updated)}</div>
+                    </div>
+                  );
+                })}
               </div>
             </ExpandableSection>
+
+            {/* My Answers Section - Only visible when authenticated */}
+            {isAuthenticated && (
+              <ExpandableSection
+                title="📝 My Answers"
+                meta={myAnswers ? `${myAnswers.filter(a => a.is_correct).length}/${myAnswers.filter(a => a.official_answer).length} correct` : ""}
+              >
+                {answersLoading ? (
+                  <div className="focused-loading">Loading your answers...</div>
+                ) : myAnswers ? (
+                  <div className="focused-my-answers">
+                    {myAnswers.map((answer, idx) => (
+                      <div
+                        key={idx}
+                        className={`focused-answer-row ${
+                          answer.official_answer
+                            ? answer.is_correct
+                              ? "correct"
+                              : "incorrect"
+                            : "pending"
+                        }`}
+                      >
+                        <div className="focused-answer-question">{answer.question}</div>
+                        <div className="focused-answer-details">
+                          <span className="focused-answer-yours">
+                            Your pick: <strong>{answer.user_answer || "—"}</strong>
+                          </span>
+                          {answer.official_answer && (
+                            <>
+                              <span className="focused-answer-official">
+                                Answer: <strong>{answer.official_answer}</strong>
+                              </span>
+                              <span className="focused-answer-result">
+                                {answer.is_correct ? `✓ +${answer.points}` : "✗"}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="focused-no-answers">
+                    No answers found for your account.
+                  </div>
+                )}
+              </ExpandableSection>
+            )}
           </>
         )}
       </div>
