@@ -423,41 +423,57 @@ function App() {
               </div>
             </ExpandableSection>
 
-            {/* Activity Feed Section */}
-            {events.length > 0 && (
-              <ExpandableSection
-                title="⚡ Activity Feed"
-                meta={`${events.length} events`}
-                defaultExpanded={true}
-              >
-                <div className="focused-activity-feed">
-                  {events.map((event, idx) => (
-                    <div key={idx} className={`focused-activity-item ${event.type}`}>
-                      {event.type === "new_leader" && (
-                        <>
-                          <span className="focused-activity-icon">👑</span>
-                          <span className="focused-activity-text">
-                            <strong>{event.player}</strong> just took the lead!
-                          </span>
-                        </>
-                      )}
-                      {event.type === "rank_up" && (
-                        <>
-                          <span className="focused-activity-icon">📈</span>
-                          <span className="focused-activity-text">
-                            <strong>{event.player}</strong> moved up to #{event.to_rank}
-                            {event.change > 1 && ` (+${event.change})`}
-                          </span>
-                        </>
-                      )}
-                      <span className="focused-activity-time">
-                        {formatTimeAgo(event.timestamp)}
-                      </span>
-                    </div>
-                  ))}
+            {/* Activity Feed Section - shows nearby competition */}
+            <ExpandableSection
+              title="⚡ Nearby Activity"
+              meta={selectedPlayer ? `Around #${selectedRank}` : "Select yourself"}
+              defaultExpanded={true}
+            >
+              {!selectedPlayer ? (
+                <div className="focused-no-answers">
+                  Select yourself from the leaderboard to see activity from nearby competitors.
                 </div>
-              </ExpandableSection>
-            )}
+              ) : (() => {
+                // Filter events to players within ±1 rank or tied
+                const nearbyEvents = events.filter((event) => {
+                  const eventRank = event.to_rank || 1; // new_leader is always rank 1
+                  return Math.abs(eventRank - selectedRank) <= 1;
+                });
+
+                return nearbyEvents.length === 0 ? (
+                  <div className="focused-no-answers">
+                    No recent movement from nearby competitors.
+                  </div>
+                ) : (
+                  <div className="focused-activity-feed">
+                    {nearbyEvents.map((event, idx) => (
+                      <div key={idx} className={`focused-activity-item ${event.type}`}>
+                        {event.type === "new_leader" && (
+                          <>
+                            <span className="focused-activity-icon">👑</span>
+                            <span className="focused-activity-text">
+                              <strong>{event.player}</strong> just took the lead!
+                            </span>
+                          </>
+                        )}
+                        {event.type === "rank_up" && (
+                          <>
+                            <span className="focused-activity-icon">📈</span>
+                            <span className="focused-activity-text">
+                              <strong>{event.player}</strong> moved up to #{event.to_rank}
+                              {event.change > 1 && ` (+${event.change})`}
+                            </span>
+                          </>
+                        )}
+                        <span className="focused-activity-time">
+                          {formatTimeAgo(event.timestamp)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </ExpandableSection>
 
             {/* Questions Section */}
             <ExpandableSection
@@ -569,7 +585,6 @@ function App() {
                 <div className="focused-what-if">
                   <div className="focused-what-if-summary">
                     <strong>{whatIf.unansweredCount}</strong> questions still unanswered.
-                    You could gain up to <strong>{whatIf.potentialPoints}</strong> more points.
                   </div>
 
                   <div className="focused-what-if-scenarios">
