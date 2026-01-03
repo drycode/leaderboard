@@ -726,3 +726,85 @@ body {
   font-size: 0.9rem;
   margin-bottom: 1rem;
 }
+
+/* ==================== DARK HORSE ALERT ==================== */
+.focused-dark-horse-alert {
+  background: linear-gradient(135deg, rgba(240, 136, 62, 0.15) 0%, rgba(240, 136, 62, 0.08) 100%);
+  border: 1px solid rgba(240, 136, 62, 0.4);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.focused-dark-horse-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.focused-dark-horse-icon {
+  font-size: 1.25rem;
+}
+
+.focused-dark-horse-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #f0883e;
+}
+
+.focused-dark-horse-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.focused-dark-horse-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+}
+
+.focused-dark-horse-name {
+  font-size: 0.85rem;
+  color: #c9d1d9;
+  font-weight: 500;
+}
+
+.focused-dark-horse-potential {
+  font-size: 0.75rem;
+  color: #8b949e;
+}
+
+.focused-dark-horse-potential strong {
+  color: #f0883e;
+}
+
+.focused-dark-horse-crown {
+  margin-left: 0.25rem;
+}
+
+.focused-dark-horse-footer {
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  color: #8b949e;
+  text-align: center;
+}
+
+/* Mobile adjustments for Dark Horse */
+@media (max-width: 480px) {
+  .focused-dark-horse-alert {
+    padding: 0.75rem;
+  }
+
+  .focused-dark-horse-item {
+    padding: 0.4rem 0.6rem;
+  }
+
+  .focused-dark-horse-name {
+    font-size: 0.8rem;
+  }
+}
