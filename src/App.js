@@ -283,6 +283,24 @@ function App() {
     .sort((a, b) => parseInt(b.updated) - parseInt(a.updated))
     .slice(0, 10);
 
+  // Shame Board: Questions where majority got it wrong
+  const shamefulQuestions = [...latestQuestions]
+    .filter((q) => {
+      if (!q.answer) return false; // Must have official answer
+      const total = q.total_answered || 0;
+      const correct = q.correct_count || 0;
+      if (total < 5) return false; // Need meaningful sample size
+      const correctPct = (correct / total) * 100;
+      return correctPct < 50; // Majority got it wrong
+    })
+    .map((q) => ({
+      ...q,
+      correctPct: Math.round(((q.correct_count || 0) / (q.total_answered || 1)) * 100),
+      wrongPct: Math.round(100 - ((q.correct_count || 0) / (q.total_answered || 1)) * 100),
+    }))
+    .sort((a, b) => a.correctPct - b.correctPct) // Most shameful first
+    .slice(0, 5); // Top 5 shameful
+
   return (
     <div className="focused-app">
       <div className="focused-container">
@@ -453,6 +471,36 @@ function App() {
                 })}
               </div>
             </ExpandableSection>
+
+            {/* Shame Board - Questions where majority got it wrong */}
+            {shamefulQuestions.length > 0 && (
+              <ExpandableSection
+                title="😬 Shame Board"
+                meta={`${shamefulQuestions.length} gotchas`}
+              >
+                <div className="focused-shame-board">
+                  <div className="focused-shame-intro">
+                    Questions where most players got it wrong:
+                  </div>
+                  {shamefulQuestions.map((q, idx) => (
+                    <div key={idx} className="focused-shame-item">
+                      <div className="focused-shame-question">{q.question}</div>
+                      <div className="focused-shame-answer">
+                        Answer: <strong>{q.answer}</strong>
+                      </div>
+                      <div className="focused-shame-stats">
+                        <span className="focused-shame-wrong">
+                          {q.wrongPct}% got this wrong
+                        </span>
+                        <span className="focused-shame-count">
+                          (only {q.correct_count}/{q.total_answered} correct)
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ExpandableSection>
+            )}
 
             {/* Answers Section - Shows selected player's answers */}
             <ExpandableSection
