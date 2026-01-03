@@ -192,12 +192,22 @@ function App() {
   );
 
   // Handle WebSocket messages
-  const handleWebSocketMessage = useCallback((data) => {
+  const handleWebSocketMessage = useCallback(async (data) => {
     if (data.scores) {
       setPlayers(data.scores);
     }
     if (data.questions) {
       setQuestions(data.questions);
+
+      // Refetch answers when questions update (new official answers may exist)
+      if (selectedEmail) {
+        try {
+          const answersData = await fetchUserAnswers(selectedEmail);
+          setMyAnswers(answersData?.answers || null);
+        } catch (err) {
+          console.error("Failed to refresh answers:", err);
+        }
+      }
     }
     if (data.trends) {
       setTrends(data.trends);
@@ -206,7 +216,7 @@ function App() {
       // Prepend new events and keep last 20
       setEvents((prev) => [...data.events, ...prev].slice(0, 20));
     }
-  }, []);
+  }, [selectedEmail]);
 
   // Connect to WebSocket
   const { isConnected } = useWebSocket(WEBSOCKET_URL, handleWebSocketMessage);
