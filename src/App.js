@@ -533,30 +533,6 @@ function App() {
               </div>
             )}
 
-            {/* Dark Horse Alert */}
-            {darkHorses.length > 0 && (
-              <div className="focused-dark-horse-alert">
-                <div className="focused-dark-horse-header">
-                  <span className="focused-dark-horse-icon">🐴</span>
-                  <span className="focused-dark-horse-title">Dark Horse Alert</span>
-                </div>
-                <div className="focused-dark-horse-list">
-                  {darkHorses.map((horse, idx) => (
-                    <div key={horse.email} className="focused-dark-horse-item">
-                      <span className="focused-dark-horse-name">{horse.name}</span>
-                      <span className="focused-dark-horse-potential">
-                        #{horse.currentRank} → could be <strong>#{horse.bestCaseRank}</strong>
-                        {horse.couldBeatLeader && <span className="focused-dark-horse-crown">👑</span>}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <div className="focused-dark-horse-footer">
-                  {unansweredCount} questions remaining
-                </div>
-              </div>
-            )}
-
             {/* Leaderboard Section */}
             <ExpandableSection
               title="🏆 Leaderboard"
@@ -603,6 +579,122 @@ function App() {
                   );
                 })}
               </div>
+            </ExpandableSection>
+
+            {/* What-If Calculator Section */}
+            {selectedPlayer && whatIf && (
+              <ExpandableSection
+                title="🎯 What-If Calculator"
+                meta={`${whatIf.unansweredCount} questions pending`}
+                defaultExpanded={true}
+              >
+                <div className="focused-what-if">
+                  <div className="focused-what-if-summary">
+                    <strong>{whatIf.unansweredCount}</strong> questions still unanswered.
+                  </div>
+
+                  <div className="focused-what-if-scenarios">
+                    <div className="focused-what-if-scenario best">
+                      <div className="focused-what-if-label">Best Case</div>
+                      <div className="focused-what-if-rank">#{whatIf.bestCaseRank}</div>
+                      <div className="focused-what-if-score">{whatIf.bestCaseScore} pts</div>
+                      <div className="focused-what-if-detail">All {whatIf.unansweredCount} correct</div>
+                    </div>
+
+                    <div className="focused-what-if-scenario current">
+                      <div className="focused-what-if-label">Current</div>
+                      <div className="focused-what-if-rank">#{whatIf.currentRank}</div>
+                      <div className="focused-what-if-score">{whatIf.currentScore} pts</div>
+                      <div className="focused-what-if-detail">Right now</div>
+                    </div>
+
+                    <div className="focused-what-if-scenario worst">
+                      <div className="focused-what-if-label">Worst Case</div>
+                      <div className="focused-what-if-rank">#{whatIf.worstCaseRank}</div>
+                      <div className="focused-what-if-score">{whatIf.worstCaseScore} pts</div>
+                      <div className="focused-what-if-detail">All {whatIf.unansweredCount} wrong</div>
+                    </div>
+                  </div>
+
+                  <div className="focused-what-if-footer">
+                    You could finish anywhere from <strong>#{whatIf.bestCaseRank}</strong> to <strong>#{whatIf.worstCaseRank}</strong>
+                  </div>
+                </div>
+              </ExpandableSection>
+            )}
+
+            {/* Dark Horse Alert */}
+            {darkHorses.length > 0 && (
+              <div className="focused-dark-horse-alert">
+                <div className="focused-dark-horse-header">
+                  <span className="focused-dark-horse-icon">🐴</span>
+                  <span className="focused-dark-horse-title">Dark Horse Alert</span>
+                </div>
+                <div className="focused-dark-horse-list">
+                  {darkHorses.map((horse, idx) => (
+                    <div key={horse.email} className="focused-dark-horse-item">
+                      <span className="focused-dark-horse-name">{horse.name}</span>
+                      <span className="focused-dark-horse-potential">
+                        #{horse.currentRank} → could be <strong>#{horse.bestCaseRank}</strong>
+                        {horse.couldBeatLeader && <span className="focused-dark-horse-crown">👑</span>}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div className="focused-dark-horse-footer">
+                  {unansweredCount} questions remaining
+                </div>
+              </div>
+            )}
+
+            {/* Answers Section - Shows selected player's answers */}
+            <ExpandableSection
+              title={selectedPlayer ? `📝 ${selectedPlayer.name}'s Answers` : "📝 Answers"}
+              meta={myAnswers ? `${myAnswers.filter(a => a.is_correct).length}/${myAnswers.filter(a => a.official_answer).length} correct` : ""}
+            >
+              {!selectedPlayer ? (
+                <div className="focused-no-answers">
+                  Select a player from the leaderboard to see their answers.
+                </div>
+              ) : answersLoading ? (
+                <div className="focused-loading">Loading answers...</div>
+              ) : myAnswers ? (
+                <div className="focused-my-answers">
+                  {myAnswers.map((answer, idx) => (
+                    <div
+                      key={idx}
+                      className={`focused-answer-row ${
+                        answer.official_answer
+                          ? answer.is_correct
+                            ? "correct"
+                            : "incorrect"
+                          : "pending"
+                      }`}
+                    >
+                      <div className="focused-answer-question">{answer.question}</div>
+                      <div className="focused-answer-details">
+                        <span className="focused-answer-yours">
+                          Pick: <strong>{answer.user_answer || "—"}</strong>
+                        </span>
+                        {answer.official_answer && (
+                          <>
+                            <span className="focused-answer-official">
+                              Answer: <strong>{answer.official_answer}</strong>
+                            </span>
+                            <span className="focused-answer-result">
+                              {answer.is_correct ? `✓ +${answer.points}` : "✗"}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="focused-no-answers">
+                  No answers found for {selectedPlayer.name}.
+                </div>
+              )}
             </ExpandableSection>
 
             {/* Questions Section */}
@@ -681,98 +773,6 @@ function App() {
                       </div>
                     </div>
                   ))}
-                </div>
-              </ExpandableSection>
-            )}
-
-            {/* Answers Section - Shows selected player's answers */}
-            <ExpandableSection
-              title={selectedPlayer ? `📝 ${selectedPlayer.name}'s Answers` : "📝 Answers"}
-              meta={myAnswers ? `${myAnswers.filter(a => a.is_correct).length}/${myAnswers.filter(a => a.official_answer).length} correct` : ""}
-            >
-              {!selectedPlayer ? (
-                <div className="focused-no-answers">
-                  Select a player from the leaderboard to see their answers.
-                </div>
-              ) : answersLoading ? (
-                <div className="focused-loading">Loading answers...</div>
-              ) : myAnswers ? (
-                <div className="focused-my-answers">
-                  {myAnswers.map((answer, idx) => (
-                    <div
-                      key={idx}
-                      className={`focused-answer-row ${
-                        answer.official_answer
-                          ? answer.is_correct
-                            ? "correct"
-                            : "incorrect"
-                          : "pending"
-                      }`}
-                    >
-                      <div className="focused-answer-question">{answer.question}</div>
-                      <div className="focused-answer-details">
-                        <span className="focused-answer-yours">
-                          Pick: <strong>{answer.user_answer || "—"}</strong>
-                        </span>
-                        {answer.official_answer && (
-                          <>
-                            <span className="focused-answer-official">
-                              Answer: <strong>{answer.official_answer}</strong>
-                            </span>
-                            <span className="focused-answer-result">
-                              {answer.is_correct ? `✓ +${answer.points}` : "✗"}
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="focused-no-answers">
-                  No answers found for {selectedPlayer.name}.
-                </div>
-              )}
-            </ExpandableSection>
-
-            {/* What-If Calculator Section */}
-            {selectedPlayer && whatIf && (
-              <ExpandableSection
-                title="🎯 What-If Calculator"
-                meta={`${whatIf.unansweredCount} questions pending`}
-                defaultExpanded={true}
-              >
-                <div className="focused-what-if">
-                  <div className="focused-what-if-summary">
-                    <strong>{whatIf.unansweredCount}</strong> questions still unanswered.
-                  </div>
-
-                  <div className="focused-what-if-scenarios">
-                    <div className="focused-what-if-scenario best">
-                      <div className="focused-what-if-label">Best Case</div>
-                      <div className="focused-what-if-rank">#{whatIf.bestCaseRank}</div>
-                      <div className="focused-what-if-score">{whatIf.bestCaseScore} pts</div>
-                      <div className="focused-what-if-detail">All {whatIf.unansweredCount} correct</div>
-                    </div>
-
-                    <div className="focused-what-if-scenario current">
-                      <div className="focused-what-if-label">Current</div>
-                      <div className="focused-what-if-rank">#{whatIf.currentRank}</div>
-                      <div className="focused-what-if-score">{whatIf.currentScore} pts</div>
-                      <div className="focused-what-if-detail">Right now</div>
-                    </div>
-
-                    <div className="focused-what-if-scenario worst">
-                      <div className="focused-what-if-label">Worst Case</div>
-                      <div className="focused-what-if-rank">#{whatIf.worstCaseRank}</div>
-                      <div className="focused-what-if-score">{whatIf.worstCaseScore} pts</div>
-                      <div className="focused-what-if-detail">All {whatIf.unansweredCount} wrong</div>
-                    </div>
-                  </div>
-
-                  <div className="focused-what-if-footer">
-                    You could finish anywhere from <strong>#{whatIf.bestCaseRank}</strong> to <strong>#{whatIf.worstCaseRank}</strong>
-                  </div>
                 </div>
               </ExpandableSection>
             )}
