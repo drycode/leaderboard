@@ -72,7 +72,7 @@ body {
   50% { opacity: 0.5; transform: scale(0.9); }
 }
 
-/* Hero Score - THE main focus */
+/* Hero Rank - THE main focus */
 .focused-hero {
   text-align: center;
   padding: 2rem 1rem;
@@ -85,7 +85,7 @@ body {
   margin-bottom: 0.5rem;
 }
 
-.focused-hero-score {
+.focused-hero-rank-big {
   font-size: 5rem;
   font-weight: 700;
   color: #fff;
@@ -94,15 +94,19 @@ body {
 }
 
 .focused-hero-label {
-  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
   color: #8b949e;
   margin-bottom: 1rem;
 }
 
-.focused-hero-rank {
+.focused-hero-score-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   background: #161b22;
   border: 1px solid #30363d;
   border-radius: 50px;
@@ -111,13 +115,19 @@ body {
   color: #c9d1d9;
 }
 
-.focused-hero-rank strong {
+.focused-hero-score-value {
+  font-size: 1.25rem;
+  font-weight: 700;
   color: #fff;
+}
+
+.focused-hero-score-label {
+  color: #8b949e;
 }
 
 .focused-hero-trend {
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 
 .focused-hero-trend.up {
@@ -426,7 +436,7 @@ body {
     padding: 1rem 0.75rem;
   }
 
-  .focused-hero-score {
+  .focused-hero-rank-big {
     font-size: 4rem;
   }
 
