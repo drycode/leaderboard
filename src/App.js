@@ -522,18 +522,16 @@ function App() {
                 <button
                   className="focused-find-btn"
                   onClick={() => {
-                    // Expand leaderboard, scroll to it, and focus search input
+                    // Expand leaderboard and focus search input immediately
+                    // Focus must be synchronous with click to trigger mobile keyboard
                     setLeaderboardExpanded(true);
-                    // Wait for expansion animation, then scroll and focus
+                    searchInputRef.current?.focus();
+                    // Scroll after a brief delay to let expansion render
                     setTimeout(() => {
                       document
-                        .querySelector(".focused-section")
-                        ?.scrollIntoView({ behavior: "smooth" });
-                      // Focus after scroll completes to trigger mobile keyboard
-                      setTimeout(() => {
-                        searchInputRef.current?.focus();
-                      }, 300);
-                    }, 50);
+                        .querySelector(".focused-search")
+                        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }, 100);
                   }}
                 >
                   Find Me
