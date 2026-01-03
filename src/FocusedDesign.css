@@ -813,6 +813,14 @@ body {
   color: #3fb950;
 }
 
+.focused-activity-item.rank_down {
+  background: rgba(248, 81, 73, 0.08);
+}
+
+.focused-activity-item.rank_down .focused-activity-text strong {
+  color: #f85149;
+}
+
 /* Scrollbar for Activity Feed */
 .focused-activity-feed::-webkit-scrollbar {
   width: 6px;

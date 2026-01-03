@@ -423,45 +423,84 @@ function App() {
               </div>
             </ExpandableSection>
 
-            {/* Activity Feed Section - shows nearby competition */}
+            {/* Activity Feed Section - shows key movements */}
             <ExpandableSection
-              title="⚡ Nearby Activity"
-              meta={selectedPlayer ? `Around #${selectedRank}` : "Select yourself"}
+              title="⚡ Activity"
+              meta="Key movements"
               defaultExpanded={true}
             >
-              {!selectedPlayer ? (
-                <div className="focused-no-answers">
-                  Select yourself from the leaderboard to see activity from nearby competitors.
-                </div>
-              ) : (() => {
-                // Filter events to players within ±1 rank or tied
-                const nearbyEvents = events.filter((event) => {
-                  const eventRank = event.to_rank || 1; // new_leader is always rank 1
-                  return Math.abs(eventRank - selectedRank) <= 1;
+              {(() => {
+                // Filter to: top 3 positions, biggest mover up, biggest mover down
+                const topThree = events.filter((e) => (e.to_rank || 1) <= 3);
+
+                // Find biggest mover up (no ties)
+                const upEvents = events.filter((e) => e.type === "rank_up" || e.type === "new_leader");
+                const maxUpChange = Math.max(...upEvents.map((e) => e.change || 0), 0);
+                const biggestUp = maxUpChange > 0
+                  ? upEvents.filter((e) => e.change === maxUpChange)
+                  : [];
+                const showBiggestUp = biggestUp.length === 1 ? biggestUp[0] : null;
+
+                // Find biggest mover down (no ties)
+                const downEvents = events.filter((e) => e.type === "rank_down");
+                const maxDownChange = Math.max(...downEvents.map((e) => e.change || 0), 0);
+                const biggestDown = maxDownChange > 0
+                  ? downEvents.filter((e) => e.change === maxDownChange)
+                  : [];
+                const showBiggestDown = biggestDown.length === 1 ? biggestDown[0] : null;
+
+                // Combine and deduplicate
+                const shown = new Set();
+                const displayEvents = [];
+
+                topThree.forEach((e) => {
+                  const key = `${e.type}-${e.player}`;
+                  if (!shown.has(key)) {
+                    shown.add(key);
+                    displayEvents.push(e);
+                  }
                 });
 
-                return nearbyEvents.length === 0 ? (
+                if (showBiggestUp && !shown.has(`${showBiggestUp.type}-${showBiggestUp.player}`)) {
+                  displayEvents.push({ ...showBiggestUp, isBiggestUp: true });
+                }
+
+                if (showBiggestDown && !shown.has(`rank_down-${showBiggestDown.player}`)) {
+                  displayEvents.push({ ...showBiggestDown, isBiggestDown: true });
+                }
+
+                return displayEvents.length === 0 ? (
                   <div className="focused-no-answers">
-                    No recent movement from nearby competitors.
+                    No recent movement.
                   </div>
                 ) : (
                   <div className="focused-activity-feed">
-                    {nearbyEvents.map((event, idx) => (
+                    {displayEvents.map((event, idx) => (
                       <div key={idx} className={`focused-activity-item ${event.type}`}>
                         {event.type === "new_leader" && (
                           <>
                             <span className="focused-activity-icon">👑</span>
                             <span className="focused-activity-text">
-                              <strong>{event.player}</strong> just took the lead!
+                              <strong>{event.player}</strong> took the lead!
                             </span>
                           </>
                         )}
                         {event.type === "rank_up" && (
                           <>
-                            <span className="focused-activity-icon">📈</span>
+                            <span className="focused-activity-icon">{event.isBiggestUp ? "🚀" : "📈"}</span>
                             <span className="focused-activity-text">
-                              <strong>{event.player}</strong> moved up to #{event.to_rank}
+                              <strong>{event.player}</strong> → #{event.to_rank}
                               {event.change > 1 && ` (+${event.change})`}
+                              {event.isBiggestUp && " 🔥"}
+                            </span>
+                          </>
+                        )}
+                        {event.type === "rank_down" && (
+                          <>
+                            <span className="focused-activity-icon">📉</span>
+                            <span className="focused-activity-text">
+                              <strong>{event.player}</strong> → #{event.to_rank}
+                              {event.change > 1 && ` (-${event.change})`}
                             </span>
                           </>
                         )}
