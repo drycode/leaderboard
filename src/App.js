@@ -180,6 +180,7 @@ function App() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef(null);
   const [myAnswers, setMyAnswers] = useState(null);
   const [answersLoading, setAnswersLoading] = useState(false);
 
@@ -341,10 +342,13 @@ function App() {
                 <button
                   className="focused-find-btn"
                   onClick={() => {
-                    // Scroll to leaderboard section or expand it
+                    // Scroll to leaderboard and focus search input
                     document
                       .querySelector(".focused-section")
                       ?.scrollIntoView({ behavior: "smooth" });
+                    setTimeout(() => {
+                      searchInputRef.current?.focus();
+                    }, 300);
                   }}
                 >
                   Find Me
@@ -360,6 +364,7 @@ function App() {
             >
               <div className="focused-search">
                 <input
+                  ref={searchInputRef}
                   type="text"
                   placeholder="Search players..."
                   value={searchQuery}
