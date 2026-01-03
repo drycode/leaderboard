@@ -424,7 +424,7 @@ function App() {
                   {gameSummary.tieCount > 1 ? `T-${gameSummary.rank}` : `#${gameSummary.rank}`}
                 </div>
                 <div className="focused-summary-rank-label">
-                  Final Rank of {gameSummary.totalPlayers}
+                  out of {gameSummary.totalPlayers} players
                 </div>
 
                 <div className="focused-summary-stats">
@@ -454,7 +454,7 @@ function App() {
                       <div className="focused-summary-pick best">
                         <span className="focused-summary-pick-icon">✅</span>
                         <span className="focused-summary-pick-text">
-                          Best: {gameSummary.bestPick.question.slice(0, 30)}...
+                          Best: {gameSummary.bestPick.question}
                           <strong>+{gameSummary.bestPick.points}</strong>
                         </span>
                       </div>
@@ -463,7 +463,7 @@ function App() {
                       <div className="focused-summary-pick worst">
                         <span className="focused-summary-pick-icon">❌</span>
                         <span className="focused-summary-pick-text">
-                          Missed: {gameSummary.worstPick.question.slice(0, 30)}...
+                          Missed: {gameSummary.worstPick.question}
                         </span>
                       </div>
                     )}
