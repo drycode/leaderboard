@@ -850,3 +850,128 @@ body {
     font-size: 0.8rem;
   }
 }
+
+/* ==================== WHAT-IF CALCULATOR ==================== */
+.focused-what-if {
+  padding: 1rem 1.25rem;
+}
+
+.focused-what-if-summary {
+  font-size: 0.9rem;
+  color: #8b949e;
+  text-align: center;
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+
+.focused-what-if-summary strong {
+  color: #58a6ff;
+}
+
+.focused-what-if-scenarios {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.focused-what-if-scenario {
+  flex: 1;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.focused-what-if-scenario.best {
+  border-color: #238636;
+  background: rgba(35, 134, 54, 0.1);
+}
+
+.focused-what-if-scenario.current {
+  border-color: #58a6ff;
+  background: rgba(88, 166, 255, 0.1);
+}
+
+.focused-what-if-scenario.worst {
+  border-color: #f85149;
+  background: rgba(248, 81, 73, 0.1);
+}
+
+.focused-what-if-label {
+  font-size: 0.65rem;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+}
+
+.focused-what-if-scenario.best .focused-what-if-label {
+  color: #3fb950;
+}
+
+.focused-what-if-scenario.current .focused-what-if-label {
+  color: #58a6ff;
+}
+
+.focused-what-if-scenario.worst .focused-what-if-label {
+  color: #f85149;
+}
+
+.focused-what-if-rank {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #c9d1d9;
+  line-height: 1.2;
+}
+
+.focused-what-if-scenario.best .focused-what-if-rank {
+  color: #3fb950;
+}
+
+.focused-what-if-scenario.worst .focused-what-if-rank {
+  color: #f85149;
+}
+
+.focused-what-if-score {
+  font-size: 0.75rem;
+  color: #8b949e;
+}
+
+.focused-what-if-detail {
+  font-size: 0.65rem;
+  color: #484f58;
+  margin-top: 0.25rem;
+}
+
+.focused-what-if-footer {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #8b949e;
+  padding-top: 0.5rem;
+  border-top: 1px solid #21262d;
+}
+
+.focused-what-if-footer strong {
+  color: #c9d1d9;
+}
+
+/* Mobile adjustments for What-If */
+@media (max-width: 480px) {
+  .focused-what-if-scenarios {
+    gap: 0.5rem;
+  }
+
+  .focused-what-if-scenario {
+    padding: 0.5rem;
+  }
+
+  .focused-what-if-rank {
+    font-size: 1.25rem;
+  }
+
+  .focused-what-if-label,
+  .focused-what-if-detail {
+    font-size: 0.6rem;
+  }
+}

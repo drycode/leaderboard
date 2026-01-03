@@ -173,6 +173,70 @@ const ExpandableSection = ({ title, meta, children, defaultExpanded = false }) =
 // Check if on mobile (matches CSS breakpoint)
 const isMobile = () => window.innerWidth <= 480;
 
+// Calculate what-if scenarios for the selected player
+// Accounts for OTHER players also gaining/losing points on unanswered questions
+const calculateWhatIf = (selectedPlayer, players, myAnswers) => {
+  if (!selectedPlayer || !myAnswers || !players.length) {
+    return null;
+  }
+
+  // Find unanswered questions (where official_answer is empty/null)
+  const unansweredQuestions = myAnswers.filter(a => !a.official_answer && a.user_answer);
+
+  if (unansweredQuestions.length === 0) {
+    return null; // All questions answered, no predictions to make
+  }
+
+  // Calculate potential points from unanswered questions
+  // Assume 1 point per question (since we don't know the multipliers yet)
+  const potentialPoints = unansweredQuestions.length;
+
+  const currentScore = selectedPlayer.score;
+  const bestCaseScore = currentScore + potentialPoints;
+  const worstCaseScore = currentScore; // No more points
+
+  // BEST CASE: I get all points, others get none
+  // My rank = 1 + count of players with score > my best score
+  let bestCaseRank = 1;
+  for (const p of players) {
+    if (p.email !== selectedPlayer.email && p.score > bestCaseScore) {
+      bestCaseRank++;
+    }
+  }
+
+  // CURRENT: My rank in current standings
+  let currentRank = 1;
+  for (const p of players) {
+    if (p.email !== selectedPlayer.email && p.score > currentScore) {
+      currentRank++;
+    }
+  }
+
+  // WORST CASE: I get 0 points, others ALL get max points
+  // Assume every other player could gain potentialPoints
+  let worstCaseRank = 1;
+  for (const p of players) {
+    if (p.email !== selectedPlayer.email) {
+      const otherBestScore = p.score + potentialPoints;
+      if (otherBestScore > worstCaseScore) {
+        worstCaseRank++;
+      }
+    }
+  }
+
+  return {
+    unansweredCount: unansweredQuestions.length,
+    potentialPoints,
+    currentScore,
+    bestCaseScore,
+    worstCaseScore,
+    currentRank,
+    bestCaseRank,
+    worstCaseRank,
+    totalPlayers: players.length,
+  };
+};
+
 function App() {
   const [players, setPlayers] = useState([]);
   const [trends, setTrends] = useState({});
@@ -287,6 +351,9 @@ function App() {
     .filter((q) => q.answer)
     .sort((a, b) => parseInt(b.updated) - parseInt(a.updated))
     .slice(0, 10);
+
+  // Calculate what-if scenarios
+  const whatIf = calculateWhatIf(selectedPlayer, players, myAnswers);
 
   return (
     <div className="focused-app">
@@ -551,6 +618,49 @@ function App() {
                 </div>
               )}
             </ExpandableSection>
+
+            {/* What-If Calculator Section */}
+            {selectedPlayer && whatIf && (
+              <ExpandableSection
+                title="🎯 What-If Calculator"
+                meta={`${whatIf.unansweredCount} questions pending`}
+                defaultExpanded={true}
+              >
+                <div className="focused-what-if">
+                  <div className="focused-what-if-summary">
+                    <strong>{whatIf.unansweredCount}</strong> questions still unanswered.
+                    You could gain up to <strong>{whatIf.potentialPoints}</strong> more points.
+                  </div>
+
+                  <div className="focused-what-if-scenarios">
+                    <div className="focused-what-if-scenario best">
+                      <div className="focused-what-if-label">Best Case</div>
+                      <div className="focused-what-if-rank">#{whatIf.bestCaseRank}</div>
+                      <div className="focused-what-if-score">{whatIf.bestCaseScore} pts</div>
+                      <div className="focused-what-if-detail">All {whatIf.unansweredCount} correct</div>
+                    </div>
+
+                    <div className="focused-what-if-scenario current">
+                      <div className="focused-what-if-label">Current</div>
+                      <div className="focused-what-if-rank">#{whatIf.currentRank}</div>
+                      <div className="focused-what-if-score">{whatIf.currentScore} pts</div>
+                      <div className="focused-what-if-detail">Right now</div>
+                    </div>
+
+                    <div className="focused-what-if-scenario worst">
+                      <div className="focused-what-if-label">Worst Case</div>
+                      <div className="focused-what-if-rank">#{whatIf.worstCaseRank}</div>
+                      <div className="focused-what-if-score">{whatIf.worstCaseScore} pts</div>
+                      <div className="focused-what-if-detail">All {whatIf.unansweredCount} wrong</div>
+                    </div>
+                  </div>
+
+                  <div className="focused-what-if-footer">
+                    You could finish anywhere from <strong>#{whatIf.bestCaseRank}</strong> to <strong>#{whatIf.worstCaseRank}</strong>
+                  </div>
+                </div>
+              </ExpandableSection>
+            )}
           </>
         )}
       </div>
