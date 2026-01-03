@@ -1128,3 +1128,170 @@ body {
     font-size: 0.8rem;
   }
 }
+
+/* ==================== GAME OVER SUMMARY ==================== */
+.focused-game-summary {
+  background: linear-gradient(135deg, #1a2332 0%, #161b22 100%);
+  border: 2px solid #3fb950;
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(63, 185, 80, 0.15);
+}
+
+.focused-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.focused-summary-trophy {
+  font-size: 2rem;
+  animation: focusedTrophyBounce 2s ease-in-out infinite;
+}
+
+@keyframes focusedTrophyBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.focused-summary-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.focused-summary-rank {
+  font-size: 4.5rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.focused-summary-rank-label {
+  font-size: 1rem;
+  color: #8b949e;
+  margin-bottom: 1.5rem;
+}
+
+.focused-summary-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem 0;
+  border-top: 1px solid #30363d;
+  border-bottom: 1px solid #30363d;
+}
+
+.focused-summary-stat {
+  text-align: center;
+}
+
+.focused-summary-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.focused-summary-stat-label {
+  font-size: 0.75rem;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.focused-summary-compare {
+  font-size: 0.95rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.focused-summary-compare.above {
+  background: rgba(63, 185, 80, 0.15);
+  color: #3fb950;
+}
+
+.focused-summary-compare.below {
+  background: rgba(139, 148, 158, 0.1);
+  color: #8b949e;
+}
+
+.focused-summary-picks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.focused-summary-pick {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+}
+
+.focused-summary-pick.best {
+  background: rgba(63, 185, 80, 0.1);
+  color: #c9d1d9;
+}
+
+.focused-summary-pick.worst {
+  background: rgba(248, 81, 73, 0.1);
+  color: #c9d1d9;
+}
+
+.focused-summary-pick-icon {
+  flex-shrink: 0;
+  font-size: 0.9rem;
+}
+
+.focused-summary-pick-text {
+  flex: 1;
+  line-height: 1.3;
+}
+
+.focused-summary-pick-text strong {
+  color: #3fb950;
+  margin-left: 0.25rem;
+}
+
+.focused-summary-pick.worst .focused-summary-pick-text strong {
+  color: #f85149;
+}
+
+.focused-summary-footer {
+  font-size: 0.75rem;
+  color: #484f58;
+  padding-top: 1rem;
+  border-top: 1px solid #21262d;
+}
+
+/* Mobile adjustments for game summary */
+@media (max-width: 480px) {
+  .focused-game-summary {
+    padding: 1.5rem 1rem;
+  }
+
+  .focused-summary-rank {
+    font-size: 3.5rem;
+  }
+
+  .focused-summary-stats {
+    gap: 1rem;
+  }
+
+  .focused-summary-stat-value {
+    font-size: 1.25rem;
+  }
+}
