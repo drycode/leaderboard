@@ -1681,4 +1681,50 @@ body {
   .focused-tab-panel {
     padding: 0.75rem;
   }
+
+  /* Mobile mutual exclusion: only one section expanded at a time */
+
+  /* Collapsed insights: just tabs visible with peek */
+  .focused-insights.collapsed .focused-insights-content {
+    max-height: 60px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .focused-insights.collapsed .focused-insights-content::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(to bottom, transparent, #161b22);
+    pointer-events: none;
+  }
+
+  /* Expanded insights: full height */
+  .focused-insights.expanded .focused-insights-content {
+    max-height: 65vh;
+  }
+
+  /* Collapsed leaderboard: just header visible */
+  .focused-section:not(.expanded) .focused-rows {
+    max-height: 0;
+    overflow: hidden;
+  }
+
+  .focused-section:not(.expanded) .focused-search {
+    display: none;
+  }
+
+  /* Expanded leaderboard: full height */
+  .focused-section.expanded .focused-rows {
+    max-height: 55vh;
+  }
+
+  /* Smooth transitions */
+  .focused-insights-content,
+  .focused-rows {
+    transition: max-height 0.3s ease-out;
+  }
 }

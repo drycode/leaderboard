@@ -195,8 +195,13 @@ function App() {
   const [risingDismissed, setRisingDismissed] = useState(false);
   const [risingExpanded, setRisingExpanded] = useState(false);
 
-  // Leaderboard expansion state (controlled for mobile)
-  const [leaderboardExpanded, setLeaderboardExpanded] = useState(!isMobile());
+  // Mobile section state: which section is expanded ("leaderboard" or "insights")
+  // On desktop, both can be expanded independently
+  const [mobileActiveSection, setMobileActiveSection] = useState("leaderboard");
+
+  // Derived expansion states
+  const leaderboardExpanded = !isMobile() || mobileActiveSection === "leaderboard";
+  const insightsExpanded = !isMobile() || mobileActiveSection === "insights";
 
   // Selected player (persisted to localStorage)
   const [selectedEmail, setSelectedEmail] = useState(
@@ -260,6 +265,14 @@ function App() {
   const handleClearSelection = () => {
     setSelectedEmail(null);
     localStorage.removeItem("selectedEmail");
+  };
+
+  // Handle tab selection (also expands insights on mobile)
+  const handleTabSelect = (tab) => {
+    setActiveTab(tab);
+    if (isMobile()) {
+      setMobileActiveSection("insights");
+    }
   };
 
   // Load answers when selected player changes
@@ -525,7 +538,7 @@ function App() {
                   onClick={() => {
                     // Use flushSync to force DOM update before focus
                     flushSync(() => {
-                      setLeaderboardExpanded(true);
+                      setMobileActiveSection("leaderboard");
                     });
                     // Force reflow to ensure browser processed display change
                     // eslint-disable-next-line no-unused-expressions
@@ -550,7 +563,7 @@ function App() {
               title="🏆 Leaderboard"
               meta={`${players.length} players`}
               expanded={leaderboardExpanded}
-              onToggle={setLeaderboardExpanded}
+              onToggle={() => setMobileActiveSection(leaderboardExpanded ? "insights" : "leaderboard")}
             >
               <div className="focused-search">
                 <input
@@ -638,11 +651,11 @@ function App() {
             )}
 
             {/* Tabbed Insights Panel */}
-            <div className="focused-insights">
+            <div className={`focused-insights ${insightsExpanded ? "expanded" : "collapsed"}`}>
               <div className="focused-insights-tabs">
                 <button
                   className={`focused-insights-tab ${activeTab === "latest" ? "active" : ""}`}
-                  onClick={() => setActiveTab("latest")}
+                  onClick={() => handleTabSelect("latest")}
                 >
                   Latest
                   {sortedQuestions.length > 0 && (
@@ -651,7 +664,7 @@ function App() {
                 </button>
                 <button
                   className={`focused-insights-tab ${activeTab === "picks" ? "active" : ""}`}
-                  onClick={() => setActiveTab("picks")}
+                  onClick={() => handleTabSelect("picks")}
                 >
                   My Picks
                   {myAnswers && (
@@ -663,7 +676,7 @@ function App() {
                 {selectedPlayer && whatIf && whatIf.unansweredCount > 0 && (
                   <button
                     className={`focused-insights-tab ${activeTab === "whatif" ? "active" : ""}`}
-                    onClick={() => setActiveTab("whatif")}
+                    onClick={() => handleTabSelect("whatif")}
                   >
                     What-If
                   </button>
@@ -671,7 +684,7 @@ function App() {
                 {shamefulQuestions.length > 0 && (
                   <button
                     className={`focused-insights-tab ${activeTab === "gotchas" ? "active" : ""}`}
-                    onClick={() => setActiveTab("gotchas")}
+                    onClick={() => handleTabSelect("gotchas")}
                   >
                     😬 Gotchas
                     <span className="focused-tab-badge">{shamefulQuestions.length}</span>
@@ -687,7 +700,7 @@ function App() {
                     {shamefulQuestions.length > 0 && (
                       <button
                         className="focused-gotchas-teaser"
-                        onClick={() => setActiveTab("gotchas")}
+                        onClick={() => handleTabSelect("gotchas")}
                       >
                         <span className="focused-gotchas-teaser-icon">😬</span>
                         <span className="focused-gotchas-teaser-text">
