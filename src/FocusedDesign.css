@@ -1451,6 +1451,145 @@ body {
   white-space: nowrap;
 }
 
+/* Gotchas teaser button in Latest tab */
+.focused-gotchas-teaser {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, rgba(248, 81, 73, 0.1) 0%, rgba(248, 81, 73, 0.05) 100%);
+  border: 1px solid rgba(248, 81, 73, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.focused-gotchas-teaser:hover {
+  background: linear-gradient(135deg, rgba(248, 81, 73, 0.15) 0%, rgba(248, 81, 73, 0.08) 100%);
+  border-color: rgba(248, 81, 73, 0.5);
+}
+
+.focused-gotchas-teaser-icon {
+  font-size: 1.1rem;
+}
+
+.focused-gotchas-teaser-text {
+  flex: 1;
+  font-size: 0.85rem;
+  color: #c9d1d9;
+  text-align: left;
+}
+
+.focused-gotchas-teaser-arrow {
+  color: #f85149;
+  font-weight: 600;
+}
+
+/* Full Gotchas tab */
+.focused-gotchas-full {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.focused-gotchas-intro {
+  font-size: 0.8rem;
+  color: #8b949e;
+  margin-bottom: 0.5rem;
+}
+
+.focused-gotcha-card {
+  background: #0d1117;
+  border: 1px solid #21262d;
+  border-radius: 8px;
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+
+.focused-gotcha-card.user-correct {
+  border-color: #3fb950;
+  background: linear-gradient(135deg, rgba(63, 185, 80, 0.1) 0%, rgba(63, 185, 80, 0.02) 100%);
+}
+
+.focused-gotcha-celebration {
+  display: inline-block;
+  background: linear-gradient(135deg, #3fb950 0%, #2ea043 100%);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  margin-bottom: 0.75rem;
+  animation: celebratePulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes celebratePulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.03); }
+}
+
+.focused-gotcha-card .focused-gotcha-question {
+  font-size: 0.9rem;
+  color: #c9d1d9;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  white-space: normal;
+  overflow: visible;
+}
+
+.focused-gotcha-answer {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.focused-gotcha-answer-label {
+  color: #8b949e;
+}
+
+.focused-gotcha-answer-text {
+  color: #3fb950;
+  font-weight: 500;
+}
+
+.focused-gotcha-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.focused-gotcha-bar {
+  flex: 1;
+  height: 6px;
+  background: #21262d;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.focused-gotcha-bar-fill.wrong {
+  height: 100%;
+  background: linear-gradient(90deg, #f85149 0%, #da3633 100%);
+  border-radius: 3px;
+}
+
+.focused-gotcha-pct {
+  font-size: 0.8rem;
+  color: #f85149;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.focused-gotcha-user-wrong {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #21262d;
+  font-size: 0.8rem;
+  color: #8b949e;
+}
+
 /* My Picks tab - simplified answer items */
 .focused-answer-item {
   padding: 0.75rem;

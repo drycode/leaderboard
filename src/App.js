@@ -648,25 +648,33 @@ function App() {
                     What-If
                   </button>
                 )}
+                {shamefulQuestions.length > 0 && (
+                  <button
+                    className={`focused-insights-tab ${activeTab === "gotchas" ? "active" : ""}`}
+                    onClick={() => setActiveTab("gotchas")}
+                  >
+                    😬 Gotchas
+                    <span className="focused-tab-badge">{shamefulQuestions.length}</span>
+                  </button>
+                )}
               </div>
 
               <div className="focused-insights-content">
                 {/* Latest Tab */}
                 {activeTab === "latest" && (
                   <div className="focused-tab-panel">
-                    {/* Gotchas at top of Latest */}
+                    {/* Gotchas teaser - click to go to full tab */}
                     {shamefulQuestions.length > 0 && (
-                      <div className="focused-gotchas">
-                        <div className="focused-gotchas-header">
-                          😬 Gotchas ({shamefulQuestions.length})
-                        </div>
-                        {shamefulQuestions.slice(0, 3).map((q, idx) => (
-                          <div key={idx} className="focused-gotcha-item">
-                            <span className="focused-gotcha-question">{q.question}</span>
-                            <span className="focused-gotcha-stat">{q.wrongPct}% wrong</span>
-                          </div>
-                        ))}
-                      </div>
+                      <button
+                        className="focused-gotchas-teaser"
+                        onClick={() => setActiveTab("gotchas")}
+                      >
+                        <span className="focused-gotchas-teaser-icon">😬</span>
+                        <span className="focused-gotchas-teaser-text">
+                          {shamefulQuestions.length} questions stumped the crowd
+                        </span>
+                        <span className="focused-gotchas-teaser-arrow">→</span>
+                      </button>
                     )}
                     {sortedQuestions.length === 0 ? (
                       <div className="focused-empty-state">
@@ -801,6 +809,52 @@ function App() {
                       <div className="focused-what-if-footer">
                         Final rank: #{whatIf.bestCaseRank} to #{whatIf.worstCaseRank}
                       </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Gotchas Tab */}
+                {activeTab === "gotchas" && (
+                  <div className="focused-tab-panel">
+                    <div className="focused-gotchas-full">
+                      <div className="focused-gotchas-intro">
+                        Questions where most players got it wrong
+                      </div>
+                      {shamefulQuestions.map((q, idx) => {
+                        const userAnswer = myAnswers?.find(a => a.question === q.question);
+                        const userGotItRight = userAnswer?.is_correct;
+                        return (
+                          <div
+                            key={idx}
+                            className={`focused-gotcha-card ${userGotItRight ? "user-correct" : ""}`}
+                          >
+                            {userGotItRight && (
+                              <div className="focused-gotcha-celebration">
+                                🎉 You beat the odds!
+                              </div>
+                            )}
+                            <div className="focused-gotcha-question">{q.question}</div>
+                            <div className="focused-gotcha-answer">
+                              <span className="focused-gotcha-answer-label">Answer:</span>
+                              <span className="focused-gotcha-answer-text">{q.answer}</span>
+                            </div>
+                            <div className="focused-gotcha-stats">
+                              <div className="focused-gotcha-bar">
+                                <div
+                                  className="focused-gotcha-bar-fill wrong"
+                                  style={{ width: `${q.wrongPct}%` }}
+                                />
+                              </div>
+                              <span className="focused-gotcha-pct">{q.wrongPct}% wrong</span>
+                            </div>
+                            {userAnswer && !userGotItRight && (
+                              <div className="focused-gotcha-user-wrong">
+                                You picked: {userAnswer.user_answer}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
