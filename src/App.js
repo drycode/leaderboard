@@ -283,6 +283,46 @@ function App() {
     .sort((a, b) => parseInt(b.updated) - parseInt(a.updated))
     .slice(0, 10);
 
+  // Game over detection and summary calculation
+  const totalQuestions = latestQuestions.length;
+  const answeredQuestions = latestQuestions.filter(q => q.answer).length;
+  const isGameOver = totalQuestions > 0 && answeredQuestions === totalQuestions;
+
+  const gameSummary = (() => {
+    if (!isGameOver || !selectedPlayer || !myAnswers) return null;
+
+    const correctAnswers = myAnswers.filter(a => a.is_correct);
+    const wrongAnswers = myAnswers.filter(a => a.official_answer && !a.is_correct);
+    const totalAnswered = myAnswers.filter(a => a.official_answer).length;
+
+    // Calculate average score
+    const avgScore = players.length > 0
+      ? Math.round(players.reduce((sum, p) => sum + p.score, 0) / players.length)
+      : 0;
+
+    // Find best and worst picks (by points)
+    const bestPick = correctAnswers.length > 0
+      ? correctAnswers.reduce((best, a) => a.points > best.points ? a : best, correctAnswers[0])
+      : null;
+    const worstPick = wrongAnswers.length > 0
+      ? wrongAnswers.find(a => a.points > 1) || wrongAnswers[0]
+      : null;
+
+    return {
+      rank: selectedRank,
+      tieCount: selectedTieCount,
+      totalPlayers: players.length,
+      score: selectedPlayer.score,
+      avgScore,
+      correctCount: correctAnswers.length,
+      totalAnswered,
+      accuracy: totalAnswered > 0 ? Math.round((correctAnswers.length / totalAnswered) * 100) : 0,
+      aboveAverage: selectedPlayer.score > avgScore,
+      bestPick,
+      worstPick,
+    };
+  })();
+
   return (
     <div className="focused-app">
       <div className="focused-container">
@@ -303,8 +343,72 @@ function App() {
           <div className="focused-loading">Loading leaderboard...</div>
         ) : (
           <>
+            {/* Game Over Summary Card */}
+            {gameSummary && (
+              <div className="focused-game-summary">
+                <div className="focused-summary-header">
+                  <span className="focused-summary-trophy">🏆</span>
+                  <span className="focused-summary-title">Game Over!</span>
+                </div>
+
+                <div className="focused-summary-rank">
+                  {gameSummary.tieCount > 1 ? `T-${gameSummary.rank}` : `#${gameSummary.rank}`}
+                </div>
+                <div className="focused-summary-rank-label">
+                  Final Rank of {gameSummary.totalPlayers}
+                </div>
+
+                <div className="focused-summary-stats">
+                  <div className="focused-summary-stat">
+                    <div className="focused-summary-stat-value">{gameSummary.score}</div>
+                    <div className="focused-summary-stat-label">Points</div>
+                  </div>
+                  <div className="focused-summary-stat">
+                    <div className="focused-summary-stat-value">{gameSummary.accuracy}%</div>
+                    <div className="focused-summary-stat-label">Accuracy</div>
+                  </div>
+                  <div className="focused-summary-stat">
+                    <div className="focused-summary-stat-value">{gameSummary.correctCount}/{gameSummary.totalAnswered}</div>
+                    <div className="focused-summary-stat-label">Correct</div>
+                  </div>
+                </div>
+
+                <div className={`focused-summary-compare ${gameSummary.aboveAverage ? 'above' : 'below'}`}>
+                  {gameSummary.aboveAverage
+                    ? `🎉 ${gameSummary.score - gameSummary.avgScore} pts above average!`
+                    : `Average: ${gameSummary.avgScore} pts`}
+                </div>
+
+                {(gameSummary.bestPick || gameSummary.worstPick) && (
+                  <div className="focused-summary-picks">
+                    {gameSummary.bestPick && (
+                      <div className="focused-summary-pick best">
+                        <span className="focused-summary-pick-icon">✅</span>
+                        <span className="focused-summary-pick-text">
+                          Best: {gameSummary.bestPick.question.slice(0, 30)}...
+                          <strong>+{gameSummary.bestPick.points}</strong>
+                        </span>
+                      </div>
+                    )}
+                    {gameSummary.worstPick && (
+                      <div className="focused-summary-pick worst">
+                        <span className="focused-summary-pick-icon">❌</span>
+                        <span className="focused-summary-pick-text">
+                          Missed: {gameSummary.worstPick.question.slice(0, 30)}...
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="focused-summary-footer">
+                  Super Bowl LIX • {selectedPlayer?.name}
+                </div>
+              </div>
+            )}
+
             {/* Hero Rank - Primary Focus */}
-            {selectedPlayer ? (
+            {selectedPlayer && !gameSummary ? (
               <div className="focused-hero">
                 <div className="focused-hero-name">{selectedPlayer.name}</div>
                 <div className="focused-hero-rank-big">
