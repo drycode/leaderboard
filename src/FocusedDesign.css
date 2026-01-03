@@ -805,21 +805,12 @@ body {
   color: #ffd700;
 }
 
-.focused-activity-item.rank_surge {
+.focused-activity-item.rank_up {
   background: rgba(63, 185, 80, 0.08);
 }
 
-.focused-activity-item.rank_surge .focused-activity-text strong {
+.focused-activity-item.rank_up .focused-activity-text strong {
   color: #3fb950;
-}
-
-.focused-activity-item.question_answered {
-  background: rgba(88, 166, 255, 0.05);
-}
-
-.focused-activity-item.question_answered .focused-activity-text strong {
-  color: #8b949e;
-  font-weight: 400;
 }
 
 /* Scrollbar for Activity Feed */

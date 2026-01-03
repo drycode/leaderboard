@@ -441,19 +441,12 @@ function App() {
                           </span>
                         </>
                       )}
-                      {event.type === "rank_surge" && (
+                      {event.type === "rank_up" && (
                         <>
-                          <span className="focused-activity-icon">🚀</span>
+                          <span className="focused-activity-icon">📈</span>
                           <span className="focused-activity-text">
-                            <strong>{event.player}</strong> surged from #{event.from_rank} to #{event.to_rank}!
-                          </span>
-                        </>
-                      )}
-                      {event.type === "question_answered" && (
-                        <>
-                          <span className="focused-activity-icon">✅</span>
-                          <span className="focused-activity-text">
-                            <strong>{event.question}</strong>: {event.answer}
+                            <strong>{event.player}</strong> moved up to #{event.to_rank}
+                            {event.change > 1 && ` (+${event.change})`}
                           </span>
                         </>
                       )}
