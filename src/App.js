@@ -178,7 +178,6 @@ function App() {
   const [players, setPlayers] = useState([]);
   const [trends, setTrends] = useState({});
   const [latestQuestions, setQuestions] = useState([]);
-  const [events, setEvents] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
@@ -211,10 +210,6 @@ function App() {
     }
     if (data.trends) {
       setTrends(data.trends);
-    }
-    if (data.events && data.events.length > 0) {
-      // Prepend new events and keep last 20
-      setEvents((prev) => [...data.events, ...prev].slice(0, 20));
     }
   }, [selectedEmail]);
 
@@ -421,112 +416,6 @@ function App() {
                   );
                 })}
               </div>
-            </ExpandableSection>
-
-            {/* Activity Feed Section - shows key movements */}
-            <ExpandableSection
-              title="⚡ Activity"
-              meta="Key movements"
-              defaultExpanded={true}
-            >
-              {(() => {
-                // Filter to: top 3 positions, biggest mover up, biggest mover down
-                const topThree = events.filter((e) => (e.to_rank || 1) <= 3);
-
-                // Find biggest mover up - tiebreaker: rose from lowest rank (most impressive)
-                const upEvents = events.filter((e) => e.type === "rank_up" || e.type === "new_leader");
-                const maxUpChange = Math.max(...upEvents.map((e) => e.change || 0), 0);
-                let biggestUp = maxUpChange > 0
-                  ? upEvents.filter((e) => e.change === maxUpChange)
-                  : [];
-                if (biggestUp.length > 1) {
-                  // Tiebreaker: who rose from the lowest rank (highest from_rank number)
-                  const lowestStart = Math.max(...biggestUp.map((e) => e.from_rank || 0));
-                  biggestUp = biggestUp.filter((e) => e.from_rank === lowestStart);
-                }
-
-                // Find biggest mover down - tiebreaker: fell from highest rank (most notable)
-                const downEvents = events.filter((e) => e.type === "rank_down");
-                const maxDownChange = Math.max(...downEvents.map((e) => e.change || 0), 0);
-                let biggestDown = maxDownChange > 0
-                  ? downEvents.filter((e) => e.change === maxDownChange)
-                  : [];
-                if (biggestDown.length > 1) {
-                  // Tiebreaker: who fell from the highest rank (lowest from_rank number)
-                  const highestStart = Math.min(...biggestDown.map((e) => e.from_rank || 999));
-                  biggestDown = biggestDown.filter((e) => e.from_rank === highestStart);
-                }
-
-                // Combine and deduplicate
-                const shown = new Set();
-                const displayEvents = [];
-
-                topThree.forEach((e) => {
-                  const key = `${e.type}-${e.player}`;
-                  if (!shown.has(key)) {
-                    shown.add(key);
-                    displayEvents.push(e);
-                  }
-                });
-
-                // Add biggest movers (can be multiple if still tied after tiebreaker)
-                biggestUp.forEach((e) => {
-                  if (!shown.has(`${e.type}-${e.player}`)) {
-                    shown.add(`${e.type}-${e.player}`);
-                    displayEvents.push({ ...e, isBiggestUp: true });
-                  }
-                });
-
-                biggestDown.forEach((e) => {
-                  if (!shown.has(`rank_down-${e.player}`)) {
-                    shown.add(`rank_down-${e.player}`);
-                    displayEvents.push({ ...e, isBiggestDown: true });
-                  }
-                });
-
-                return displayEvents.length === 0 ? (
-                  <div className="focused-no-answers">
-                    No recent movement.
-                  </div>
-                ) : (
-                  <div className="focused-activity-feed">
-                    {displayEvents.map((event, idx) => (
-                      <div key={idx} className={`focused-activity-item ${event.type}`}>
-                        {event.type === "new_leader" && (
-                          <>
-                            <span className="focused-activity-icon">👑</span>
-                            <span className="focused-activity-text">
-                              <strong>{event.player}</strong> took the lead!
-                            </span>
-                          </>
-                        )}
-                        {event.type === "rank_up" && (
-                          <>
-                            <span className="focused-activity-icon">{event.isBiggestUp ? "🚀" : "📈"}</span>
-                            <span className="focused-activity-text">
-                              <strong>{event.player}</strong> → #{event.to_rank}
-                              {event.change > 1 && ` (+${event.change})`}
-                              {event.isBiggestUp && " 🔥"}
-                            </span>
-                          </>
-                        )}
-                        {event.type === "rank_down" && (
-                          <>
-                            <span className="focused-activity-icon">📉</span>
-                            <span className="focused-activity-text">
-                              <strong>{event.player}</strong> → #{event.to_rank}
-                              {event.change > 1 && ` (-${event.change})`}
-                            </span>
-                          </>
-                        )}
-                        <span className="focused-activity-time">
-                          {formatTimeAgo(event.timestamp)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
             </ExpandableSection>
 
             {/* Questions Section */}
