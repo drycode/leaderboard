@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import { flushSync } from "react-dom";
 import "./FocusedDesign.css";
 import React from "react";
 import { calculateWhatIf } from "./utils/calculateWhatIf";
@@ -522,16 +523,19 @@ function App() {
                 <button
                   className="focused-find-btn"
                   onClick={() => {
-                    // Expand leaderboard and focus search input immediately
-                    // Focus must be synchronous with click to trigger mobile keyboard
-                    setLeaderboardExpanded(true);
+                    // Use flushSync to force DOM update before focus
+                    // This ensures input is visible when we focus it
+                    flushSync(() => {
+                      setLeaderboardExpanded(true);
+                    });
+                    // Now input is visible, focus triggers mobile keyboard
                     searchInputRef.current?.focus();
-                    // Scroll after a brief delay to let expansion render
+                    // Scroll to search input
                     setTimeout(() => {
                       document
                         .querySelector(".focused-search")
                         ?.scrollIntoView({ behavior: "smooth", block: "center" });
-                    }, 100);
+                    }, 50);
                   }}
                 >
                   Find Me
