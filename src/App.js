@@ -331,7 +331,6 @@ function App() {
   const unansweredCount = realAnswers
     ? realAnswers.filter(a => !a.official_answer).length
     : latestQuestions.filter(q => !q.answer).length;
-  const gameProgress = totalQuestionCount > 0 ? (totalQuestionCount - unansweredCount) / totalQuestionCount : 0;
   const answeredQuestions = totalQuestionCount - unansweredCount;
 
   // Rising players: top 3 biggest gainers (moved up 2+ spots)
