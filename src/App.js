@@ -148,8 +148,10 @@ const TrendIndicator = ({ trend, className = "" }) => {
 };
 
 // Expandable Section component
-const ExpandableSection = ({ title, meta, children, defaultExpanded = false }) => {
-  const [expanded, setExpanded] = useState(defaultExpanded);
+const ExpandableSection = ({ title, meta, children, defaultExpanded = false, expanded: controlledExpanded, onToggle }) => {
+  const [internalExpanded, setInternalExpanded] = useState(defaultExpanded);
+  const expanded = controlledExpanded !== undefined ? controlledExpanded : internalExpanded;
+  const setExpanded = onToggle || setInternalExpanded;
 
   return (
     <div className={`focused-section ${expanded ? "expanded" : ""}`}>
@@ -191,6 +193,9 @@ function App() {
   // Rising banner state
   const [risingDismissed, setRisingDismissed] = useState(false);
   const [risingExpanded, setRisingExpanded] = useState(false);
+
+  // Leaderboard expansion state (controlled for mobile)
+  const [leaderboardExpanded, setLeaderboardExpanded] = useState(!isMobile());
 
   // Selected player (persisted to localStorage)
   const [selectedEmail, setSelectedEmail] = useState(
@@ -475,8 +480,8 @@ function App() {
               </div>
             )}
 
-            {/* Hero Rank - Primary Focus */}
-            {selectedPlayer && !gameSummary ? (
+            {/* Hero Rank - Primary Focus (only when game not over) */}
+            {!gameSummary && selectedPlayer && (
               <div className="focused-hero">
                 <div className="focused-hero-name">{selectedPlayer.name}</div>
                 <div className="focused-hero-rank-big">
@@ -505,7 +510,10 @@ function App() {
                   Change player
                 </button>
               </div>
-            ) : (
+            )}
+
+            {/* Find Me - only when no player selected and game not over */}
+            {!gameSummary && !selectedPlayer && (
               <div className="focused-no-selection">
                 <div className="focused-no-selection-icon">🏈</div>
                 <div className="focused-no-selection-text">
@@ -514,13 +522,18 @@ function App() {
                 <button
                   className="focused-find-btn"
                   onClick={() => {
-                    // Scroll to leaderboard and focus search input
-                    document
-                      .querySelector(".focused-section")
-                      ?.scrollIntoView({ behavior: "smooth" });
+                    // Expand leaderboard, scroll to it, and focus search input
+                    setLeaderboardExpanded(true);
+                    // Wait for expansion animation, then scroll and focus
                     setTimeout(() => {
-                      searchInputRef.current?.focus();
-                    }, 300);
+                      document
+                        .querySelector(".focused-section")
+                        ?.scrollIntoView({ behavior: "smooth" });
+                      // Focus after scroll completes to trigger mobile keyboard
+                      setTimeout(() => {
+                        searchInputRef.current?.focus();
+                      }, 300);
+                    }, 50);
                   }}
                 >
                   Find Me
@@ -532,7 +545,8 @@ function App() {
             <ExpandableSection
               title="🏆 Leaderboard"
               meta={`${players.length} players`}
-              defaultExpanded={!isMobile()}
+              expanded={leaderboardExpanded}
+              onToggle={setLeaderboardExpanded}
             >
               <div className="focused-search">
                 <input
