@@ -177,6 +177,7 @@ function App() {
   const [players, setPlayers] = useState([]);
   const [trends, setTrends] = useState({});
   const [latestQuestions, setQuestions] = useState([]);
+  const [events, setEvents] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
@@ -199,6 +200,10 @@ function App() {
     }
     if (data.trends) {
       setTrends(data.trends);
+    }
+    if (data.events && data.events.length > 0) {
+      // Prepend new events and keep last 20
+      setEvents((prev) => [...data.events, ...prev].slice(0, 20));
     }
   }, []);
 
@@ -403,6 +408,49 @@ function App() {
                 })}
               </div>
             </ExpandableSection>
+
+            {/* Activity Feed Section */}
+            {events.length > 0 && (
+              <ExpandableSection
+                title="⚡ Activity Feed"
+                meta={`${events.length} events`}
+                defaultExpanded={true}
+              >
+                <div className="focused-activity-feed">
+                  {events.map((event, idx) => (
+                    <div key={idx} className={`focused-activity-item ${event.type}`}>
+                      {event.type === "new_leader" && (
+                        <>
+                          <span className="focused-activity-icon">👑</span>
+                          <span className="focused-activity-text">
+                            <strong>{event.player}</strong> just took the lead!
+                          </span>
+                        </>
+                      )}
+                      {event.type === "rank_surge" && (
+                        <>
+                          <span className="focused-activity-icon">🚀</span>
+                          <span className="focused-activity-text">
+                            <strong>{event.player}</strong> surged from #{event.from_rank} to #{event.to_rank}!
+                          </span>
+                        </>
+                      )}
+                      {event.type === "question_answered" && (
+                        <>
+                          <span className="focused-activity-icon">✅</span>
+                          <span className="focused-activity-text">
+                            <strong>{event.question}</strong>: {event.answer}
+                          </span>
+                        </>
+                      )}
+                      <span className="focused-activity-time">
+                        {formatTimeAgo(event.timestamp)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </ExpandableSection>
+            )}
 
             {/* Questions Section */}
             <ExpandableSection
