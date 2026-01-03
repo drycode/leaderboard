@@ -324,9 +324,12 @@ function App() {
 
   // Calculate game progress using myAnswers (has ALL questions) when available
   // Fall back to latestQuestions if user not selected
-  const totalQuestionCount = myAnswers?.length || latestQuestions.length;
-  const unansweredCount = myAnswers
-    ? myAnswers.filter(a => !a.official_answer).length
+  // Filter out garbage columns like "Column 71" that aren't real questions
+  const isRealQuestion = (q) => q.question && !q.question.match(/^Column \d+$/);
+  const realAnswers = myAnswers?.filter(isRealQuestion);
+  const totalQuestionCount = realAnswers?.length || latestQuestions.length;
+  const unansweredCount = realAnswers
+    ? realAnswers.filter(a => !a.official_answer).length
     : latestQuestions.filter(q => !q.answer).length;
   const gameProgress = totalQuestionCount > 0 ? (totalQuestionCount - unansweredCount) / totalQuestionCount : 0;
   const answeredQuestions = totalQuestionCount - unansweredCount;
@@ -355,11 +358,11 @@ function App() {
   const isGameOver = totalQuestionCount > 0 && answeredQuestions === totalQuestionCount;
 
   const gameSummary = (() => {
-    if (!isGameOver || !selectedPlayer || !myAnswers) return null;
+    if (!isGameOver || !selectedPlayer || !realAnswers) return null;
 
-    const correctAnswers = myAnswers.filter(a => a.is_correct);
-    const wrongAnswers = myAnswers.filter(a => a.official_answer && !a.is_correct);
-    const totalAnswered = myAnswers.filter(a => a.official_answer).length;
+    const correctAnswers = realAnswers.filter(a => a.is_correct);
+    const wrongAnswers = realAnswers.filter(a => a.official_answer && !a.is_correct);
+    const totalAnswered = realAnswers.filter(a => a.official_answer).length;
 
     // Calculate average score
     const avgScore = players.length > 0
