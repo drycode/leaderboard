@@ -414,6 +414,9 @@ function App() {
                   // Find user's answer for this question
                   const userAnswer = myAnswers?.find(a => a.question === q.question);
                   const points = q.points || 1;
+                  const correctCount = q.correct_count || 0;
+                  const totalAnswered = q.total_answered || 0;
+                  const correctPct = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
                   return (
                     <div key={idx} className="focused-question">
                       <div className="focused-question-text">{q.question}</div>
@@ -423,6 +426,19 @@ function App() {
                           {points} pt{points !== 1 ? "s" : ""}
                         </span>
                       </div>
+                      {totalAnswered > 0 && (
+                        <div className="focused-question-stats">
+                          <div className="focused-stats-bar">
+                            <div
+                              className="focused-stats-fill"
+                              style={{ width: `${correctPct}%` }}
+                            />
+                          </div>
+                          <span className="focused-stats-text">
+                            {correctPct}% got this right ({correctCount}/{totalAnswered})
+                          </span>
+                        </div>
+                      )}
                       {userAnswer && (
                         <div className={`focused-question-my-answer ${
                           userAnswer.is_correct ? "correct" : "incorrect"
