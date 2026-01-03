@@ -974,3 +974,75 @@ body {
     font-size: 0.6rem;
   }
 }
+
+/* ==================== SHAME BOARD ==================== */
+.focused-shame-board {
+  padding: 1rem 1.25rem;
+}
+
+.focused-shame-intro {
+  font-size: 0.85rem;
+  color: #8b949e;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.focused-shame-item {
+  background: rgba(248, 81, 73, 0.08);
+  border: 1px solid rgba(248, 81, 73, 0.3);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.focused-shame-item:last-child {
+  margin-bottom: 0;
+}
+
+.focused-shame-question {
+  font-size: 0.9rem;
+  color: #c9d1d9;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.focused-shame-answer {
+  font-size: 0.8rem;
+  color: #8b949e;
+  margin-bottom: 0.5rem;
+}
+
+.focused-shame-answer strong {
+  color: #3fb950;
+}
+
+.focused-shame-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.focused-shame-wrong {
+  color: #f85149;
+  font-weight: 600;
+}
+
+.focused-shame-count {
+  color: #484f58;
+}
+
+/* Mobile adjustments for Shame Board */
+@media (max-width: 480px) {
+  .focused-shame-board {
+    padding: 0.75rem 1rem;
+  }
+
+  .focused-shame-item {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .focused-shame-question {
+    font-size: 0.85rem;
+  }
+}
