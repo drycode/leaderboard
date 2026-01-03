@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import "./FocusedDesign.css";
 import React from "react";
-import { useAuth } from "./hooks/useAuth";
 
 // API endpoints
 const API_BASE_URL =
@@ -10,10 +9,6 @@ const API_BASE_URL =
 const WEBSOCKET_URL =
   process.env.REACT_APP_WS_URL ||
   "wss://pg0vf88roi.execute-api.us-east-1.amazonaws.com/prod";
-
-// Google Form configuration
-const GOOGLE_FORM_URL = process.env.REACT_APP_GOOGLE_FORM_URL || "";
-const GOOGLE_FORM_EMAIL_ENTRY = process.env.REACT_APP_GOOGLE_FORM_EMAIL_ENTRY || "";
 
 // Fetch initial scores via REST API
 const fetchInitialData = async () => {
@@ -187,10 +182,6 @@ function App() {
     const [searchQuery, setSearchQuery] = useState("");
   const [myAnswers, setMyAnswers] = useState(null);
   const [answersLoading, setAnswersLoading] = useState(false);
-  const [showNewUserModal, setShowNewUserModal] = useState(false);
-
-  // Auth state
-  const { user, isAuthenticated, signIn, signOut, isLoading: authLoading } = useAuth();
 
   // Selected player (persisted to localStorage)
   const [selectedEmail, setSelectedEmail] = useState(
@@ -246,46 +237,27 @@ function App() {
     localStorage.removeItem("selectedEmail");
   };
 
-  // Auto-select user when authenticated and load their answers
+  // Load answers when selected player changes
   useEffect(() => {
-    if (isAuthenticated && user && players.length > 0) {
-      const matchedPlayer = players.find((p) => p.email === user.email);
+    if (!selectedEmail) {
+      setMyAnswers(null);
+      return;
+    }
 
-      if (matchedPlayer) {
-        // User found in leaderboard - auto-select and load answers
-        if (selectedEmail !== user.email) {
-          handlePlayerSelect(user.email);
-        }
-
-        // Fetch user's answers
-        const loadAnswers = async () => {
-          setAnswersLoading(true);
-          try {
-            const data = await fetchUserAnswers(user.email);
-            setMyAnswers(data?.answers || null);
-          } catch (err) {
-            console.error("Failed to fetch answers:", err);
-          } finally {
-            setAnswersLoading(false);
-          }
-        };
-        loadAnswers();
-      } else {
-        // User NOT in leaderboard - show form redirect modal
-        setShowNewUserModal(true);
+    const loadAnswers = async () => {
+      setAnswersLoading(true);
+      try {
+        const data = await fetchUserAnswers(selectedEmail);
+        setMyAnswers(data?.answers || null);
+      } catch (err) {
+        console.error("Failed to fetch answers:", err);
+        setMyAnswers(null);
+      } finally {
+        setAnswersLoading(false);
       }
-    }
-  }, [isAuthenticated, user, players, selectedEmail]);
-
-  // Build Google Form URL with pre-filled email
-  const getFormUrl = () => {
-    if (!GOOGLE_FORM_URL || !user?.email) return GOOGLE_FORM_URL;
-    const url = new URL(GOOGLE_FORM_URL);
-    if (GOOGLE_FORM_EMAIL_ENTRY) {
-      url.searchParams.set(GOOGLE_FORM_EMAIL_ENTRY, user.email);
-    }
-    return url.toString();
-  };
+    };
+    loadAnswers();
+  }, [selectedEmail]);
 
   // Filter players by search query
   const filteredPlayers = searchQuery
@@ -312,42 +284,6 @@ function App() {
 
   return (
     <div className="focused-app">
-      {/* New User Modal */}
-      {showNewUserModal && (
-        <div className="focused-modal-overlay" onClick={() => setShowNewUserModal(false)}>
-          <div className="focused-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="focused-modal-icon">🏈</div>
-            <h2 className="focused-modal-title">Welcome!</h2>
-            <p className="focused-modal-text">
-              It looks like you haven't filled out your prop sheet yet.
-              {user?.email && (
-                <span className="focused-modal-email"> ({user.email})</span>
-              )}
-            </p>
-            {GOOGLE_FORM_URL ? (
-              <a
-                href={getFormUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="focused-modal-btn"
-              >
-                Fill Out Prop Sheet
-              </a>
-            ) : (
-              <p className="focused-modal-note">
-                Contact the organizer to get your prop sheet link.
-              </p>
-            )}
-            <button
-              className="focused-modal-close"
-              onClick={() => setShowNewUserModal(false)}
-            >
-              Maybe later
-            </button>
-          </div>
-        </div>
-      )}
-
       <div className="focused-container">
         {/* Header */}
         <div className="focused-header">
@@ -357,17 +293,6 @@ function App() {
               <span className="focused-live-dot"></span>
               {isConnected ? "Live" : "Reconnecting..."}
             </div>
-            {!authLoading && (
-              isAuthenticated ? (
-                <button className="focused-auth-btn" onClick={signOut}>
-                  Sign Out
-                </button>
-              ) : (
-                <button className="focused-auth-btn focused-auth-signin" onClick={signIn}>
-                  Sign In
-                </button>
-              )
-            )}
           </div>
         </div>
 
@@ -506,53 +431,55 @@ function App() {
               </div>
             </ExpandableSection>
 
-            {/* My Answers Section - Only visible when authenticated */}
-            {isAuthenticated && (
-              <ExpandableSection
-                title="📝 My Answers"
-                meta={myAnswers ? `${myAnswers.filter(a => a.is_correct).length}/${myAnswers.filter(a => a.official_answer).length} correct` : ""}
-              >
-                {answersLoading ? (
-                  <div className="focused-loading">Loading your answers...</div>
-                ) : myAnswers ? (
-                  <div className="focused-my-answers">
-                    {myAnswers.map((answer, idx) => (
-                      <div
-                        key={idx}
-                        className={`focused-answer-row ${
-                          answer.official_answer
-                            ? answer.is_correct
-                              ? "correct"
-                              : "incorrect"
-                            : "pending"
-                        }`}
-                      >
-                        <div className="focused-answer-question">{answer.question}</div>
-                        <div className="focused-answer-details">
-                          <span className="focused-answer-yours">
-                            Your pick: <strong>{answer.user_answer || "—"}</strong>
-                          </span>
-                          {answer.official_answer && (
-                            <>
-                              <span className="focused-answer-official">
-                                Answer: <strong>{answer.official_answer}</strong>
-                              </span>
-                              <span className="focused-answer-result">
-                                {answer.is_correct ? `✓ +${answer.points}` : "✗"}
-                              </span>
-                            </>
-                          )}
-                        </div>
+            {/* Answers Section - Shows selected player's answers */}
+            <ExpandableSection
+              title={selectedPlayer ? `📝 ${selectedPlayer.name}'s Answers` : "📝 Answers"}
+              meta={myAnswers ? `${myAnswers.filter(a => a.is_correct).length}/${myAnswers.filter(a => a.official_answer).length} correct` : ""}
+            >
+              {!selectedPlayer ? (
+                <div className="focused-no-answers">
+                  Select a player from the leaderboard to see their answers.
+                </div>
+              ) : answersLoading ? (
+                <div className="focused-loading">Loading answers...</div>
+              ) : myAnswers ? (
+                <div className="focused-my-answers">
+                  {myAnswers.map((answer, idx) => (
+                    <div
+                      key={idx}
+                      className={`focused-answer-row ${
+                        answer.official_answer
+                          ? answer.is_correct
+                            ? "correct"
+                            : "incorrect"
+                          : "pending"
+                      }`}
+                    >
+                      <div className="focused-answer-question">{answer.question}</div>
+                      <div className="focused-answer-details">
+                        <span className="focused-answer-yours">
+                          Pick: <strong>{answer.user_answer || "—"}</strong>
+                        </span>
+                        {answer.official_answer && (
+                          <>
+                            <span className="focused-answer-official">
+                              Answer: <strong>{answer.official_answer}</strong>
+                            </span>
+                            <span className="focused-answer-result">
+                              {answer.is_correct ? `✓ +${answer.points}` : "✗"}
+                            </span>
+                          </>
+                        )}
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="focused-no-answers">
-                    No answers found for your account.
-                  </div>
-                )}
-              </ExpandableSection>
-            )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="focused-no-answers">
+                  No answers found for {selectedPlayer.name}.
+                </div>
+              )}
+            </ExpandableSection>
           </>
         )}
       </div>
