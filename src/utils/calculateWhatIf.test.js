@@ -188,5 +188,88 @@ describe('calculateWhatIf', () => {
       // All at 5 points - current rank should be 1 (no one ahead)
       expect(result.currentRank).toBe(1);
     });
+
+    it('handles single unanswered question', () => {
+      const selectedPlayer = player('me@test.com', 10);
+      const players = [
+        selectedPlayer,
+        player('other@test.com', 10),
+      ];
+      const answers = [unanswered('Yes')];
+
+      const result = calculateWhatIf(selectedPlayer, players, answers);
+      expect(result.unansweredCount).toBe(1);
+      expect(result.potentialPoints).toBe(1);
+      expect(result.bestCaseScore).toBe(11);
+    });
+
+    it('treats empty string official_answer as unanswered', () => {
+      const selectedPlayer = player('me@test.com', 5);
+      const players = [selectedPlayer];
+      const answers = [
+        { official_answer: '', user_answer: 'Yes' },  // empty string = unanswered
+        { official_answer: null, user_answer: 'No' }, // null = unanswered
+      ];
+
+      const result = calculateWhatIf(selectedPlayer, players, answers);
+      expect(result.unansweredCount).toBe(2);
+    });
+
+    it('ignores questions where user has not answered', () => {
+      const selectedPlayer = player('me@test.com', 5);
+      const players = [selectedPlayer];
+      const answers = [
+        { official_answer: null, user_answer: '' },    // empty user answer
+        { official_answer: null, user_answer: null },  // null user answer
+        { official_answer: null, user_answer: 'Yes' }, // valid unanswered
+      ];
+
+      const result = calculateWhatIf(selectedPlayer, players, answers);
+      // Only the last one should count
+      expect(result.unansweredCount).toBe(1);
+    });
+
+    it('handles worst case ties (others can only tie, not beat)', () => {
+      const selectedPlayer = player('me@test.com', 5);
+      const players = [
+        selectedPlayer,
+        player('other@test.com', 4),
+      ];
+      const answers = [unanswered('Yes')]; // 1 potential point
+
+      const result = calculateWhatIf(selectedPlayer, players, answers);
+      // Worst case: I stay at 5, other gets 4+1=5 (ties me)
+      // Tie doesn't beat me, so I stay rank 1
+      expect(result.worstCaseRank).toBe(1);
+    });
+
+    it('handles best case ties with others', () => {
+      const selectedPlayer = player('me@test.com', 5);
+      const players = [
+        selectedPlayer,
+        player('other@test.com', 7),
+      ];
+      const answers = [unanswered('Yes'), unanswered('Yes')]; // 2 potential points
+
+      const result = calculateWhatIf(selectedPlayer, players, answers);
+      // Best case: 5 + 2 = 7, ties with other's 7
+      // Tie doesn't put me ahead, so other still counts as "not behind"
+      // But rank calculation uses >, so tie means I'm rank 1 (tied)
+      expect(result.bestCaseRank).toBe(1);
+    });
+
+    it('handles selected player not found in players array', () => {
+      const selectedPlayer = player('ghost@test.com', 5);
+      const players = [
+        player('other1@test.com', 10),
+        player('other2@test.com', 8),
+      ];
+      const answers = [unanswered('Yes')];
+
+      // Function should still calculate, treating selected player as separate
+      const result = calculateWhatIf(selectedPlayer, players, answers);
+      expect(result.currentRank).toBe(3); // Behind both others
+      expect(result.worstCaseRank).toBe(3); // Still behind when others gain
+    });
   });
 });
