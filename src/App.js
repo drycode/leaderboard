@@ -654,6 +654,20 @@ function App() {
                 {/* Latest Tab */}
                 {activeTab === "latest" && (
                   <div className="focused-tab-panel">
+                    {/* Gotchas at top of Latest */}
+                    {shamefulQuestions.length > 0 && (
+                      <div className="focused-gotchas">
+                        <div className="focused-gotchas-header">
+                          😬 Gotchas ({shamefulQuestions.length})
+                        </div>
+                        {shamefulQuestions.slice(0, 3).map((q, idx) => (
+                          <div key={idx} className="focused-gotcha-item">
+                            <span className="focused-gotcha-question">{q.question}</span>
+                            <span className="focused-gotcha-stat">{q.wrongPct}% wrong</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     {sortedQuestions.length === 0 ? (
                       <div className="focused-empty-state">
                         No questions answered yet. Check back soon!
@@ -701,20 +715,6 @@ function App() {
                           );
                         })}
 
-                        {/* Gotchas inline at bottom of Latest */}
-                        {shamefulQuestions.length > 0 && (
-                          <div className="focused-gotchas">
-                            <div className="focused-gotchas-header">
-                              😬 Gotchas ({shamefulQuestions.length})
-                            </div>
-                            {shamefulQuestions.slice(0, 3).map((q, idx) => (
-                              <div key={idx} className="focused-gotcha-item">
-                                <span className="focused-gotcha-question">{q.question}</span>
-                                <span className="focused-gotcha-stat">{q.wrongPct}% wrong</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
                       </div>
                     )}
                   </div>
