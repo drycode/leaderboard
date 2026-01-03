@@ -180,10 +180,17 @@ function App() {
   const [latestQuestions, setQuestions] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef(null);
   const [myAnswers, setMyAnswers] = useState(null);
   const [answersLoading, setAnswersLoading] = useState(false);
+
+  // Insights tab state
+  const [activeTab, setActiveTab] = useState("latest");
+
+  // Rising banner state
+  const [risingDismissed, setRisingDismissed] = useState(false);
+  const [risingExpanded, setRisingExpanded] = useState(false);
 
   // Selected player (persisted to localStorage)
   const [selectedEmail, setSelectedEmail] = useState(
@@ -315,51 +322,37 @@ function App() {
     .sort((a, b) => a.correctPct - b.correctPct) // Most shameful first
     .slice(0, 5); // Top 5 shameful
 
-  // Dark Horse Alert: Players who could surge to top positions
-  const unansweredCount = latestQuestions.filter(q => !q.answer).length;
-  const darkHorses = (() => {
-    if (unansweredCount === 0 || players.length < 4) return [];
+  // Calculate game progress using myAnswers (has ALL questions) when available
+  // Fall back to latestQuestions if user not selected
+  const totalQuestionCount = myAnswers?.length || latestQuestions.length;
+  const unansweredCount = myAnswers
+    ? myAnswers.filter(a => !a.official_answer).length
+    : latestQuestions.filter(q => !q.answer).length;
+  const gameProgress = totalQuestionCount > 0 ? (totalQuestionCount - unansweredCount) / totalQuestionCount : 0;
+  const answeredQuestions = totalQuestionCount - unansweredCount;
 
-    // Get current top 3 scores
-    const sortedByScore = [...players].sort((a, b) => b.score - a.score);
-    const top3Score = sortedByScore[2]?.score ?? 0; // 3rd place score
-    const leaderScore = sortedByScore[0]?.score ?? 0;
+  // Rising players: top 3 biggest gainers (moved up 2+ spots)
+  const risingPlayers = (() => {
+    // Only show after at least 3 questions answered
+    if (answeredQuestions < 3) return [];
 
-    // Find players outside top 3 who could jump into top 3
-    return players
-      .filter((p) => {
-        const currentRank = rankMap.get(p.score)?.rank ?? 999;
-        if (currentRank <= 3) return false; // Already in top 3
-
-        const bestCaseScore = p.score + unansweredCount;
-        // Could they beat current 3rd place?
-        return bestCaseScore > top3Score;
-      })
-      .map((p) => {
-        const bestCaseScore = p.score + unansweredCount;
-        // Calculate best case rank
-        let bestRank = 1;
-        for (const other of players) {
-          if (other.email !== p.email && other.score > bestCaseScore) {
-            bestRank++;
-          }
-        }
+    return Object.entries(trends)
+      .filter(([_, t]) => t.direction === "up" && t.change >= 2)
+      .map(([email, t]) => {
+        const player = players.find(p => p.email === email);
+        if (!player) return null;
         return {
-          ...p,
-          currentRank: rankMap.get(p.score)?.rank ?? 999,
-          bestCaseScore,
-          bestCaseRank: bestRank,
-          couldBeatLeader: bestCaseScore > leaderScore,
+          ...player,
+          change: t.change,
         };
       })
-      .sort((a, b) => a.bestCaseRank - b.bestCaseRank)
-      .slice(0, 3); // Top 3 dark horses
+      .filter(Boolean) // remove nulls
+      .sort((a, b) => b.change - a.change)
+      .slice(0, 3);
   })();
 
-  // Game over detection and summary calculation
-  const totalQuestions = latestQuestions.length;
-  const answeredQuestions = latestQuestions.filter(q => q.answer).length;
-  const isGameOver = totalQuestions > 0 && answeredQuestions === totalQuestions;
+  // Game over detection
+  const isGameOver = totalQuestionCount > 0 && answeredQuestions === totalQuestionCount;
 
   const gameSummary = (() => {
     if (!isGameOver || !selectedPlayer || !myAnswers) return null;
@@ -581,201 +574,238 @@ function App() {
               </div>
             </ExpandableSection>
 
-            {/* What-If Calculator Section */}
-            {selectedPlayer && whatIf && (
-              <ExpandableSection
-                title="🎯 What-If Calculator"
-                meta={`${whatIf.unansweredCount} questions pending`}
-                defaultExpanded={true}
-              >
-                <div className="focused-what-if">
-                  <div className="focused-what-if-summary">
-                    <strong>{whatIf.unansweredCount}</strong> questions still unanswered.
-                  </div>
-
-                  <div className="focused-what-if-scenarios">
-                    <div className="focused-what-if-scenario best">
-                      <div className="focused-what-if-label">Best Case</div>
-                      <div className="focused-what-if-rank">#{whatIf.bestCaseRank}</div>
-                      <div className="focused-what-if-score">{whatIf.bestCaseScore} pts</div>
-                      <div className="focused-what-if-detail">All {whatIf.unansweredCount} correct</div>
-                    </div>
-
-                    <div className="focused-what-if-scenario current">
-                      <div className="focused-what-if-label">Current</div>
-                      <div className="focused-what-if-rank">#{whatIf.currentRank}</div>
-                      <div className="focused-what-if-score">{whatIf.currentScore} pts</div>
-                      <div className="focused-what-if-detail">Right now</div>
-                    </div>
-
-                    <div className="focused-what-if-scenario worst">
-                      <div className="focused-what-if-label">Worst Case</div>
-                      <div className="focused-what-if-rank">#{whatIf.worstCaseRank}</div>
-                      <div className="focused-what-if-score">{whatIf.worstCaseScore} pts</div>
-                      <div className="focused-what-if-detail">All {whatIf.unansweredCount} wrong</div>
-                    </div>
-                  </div>
-
-                  <div className="focused-what-if-footer">
-                    You could finish anywhere from <strong>#{whatIf.bestCaseRank}</strong> to <strong>#{whatIf.worstCaseRank}</strong>
-                  </div>
-                </div>
-              </ExpandableSection>
-            )}
-
-            {/* Dark Horse Alert */}
-            {darkHorses.length > 0 && (
-              <div className="focused-dark-horse-alert">
-                <div className="focused-dark-horse-header">
-                  <span className="focused-dark-horse-icon">🐴</span>
-                  <span className="focused-dark-horse-title">Dark Horse Alert</span>
-                </div>
-                <div className="focused-dark-horse-list">
-                  {darkHorses.map((horse, idx) => (
-                    <div key={horse.email} className="focused-dark-horse-item">
-                      <span className="focused-dark-horse-name">{horse.name}</span>
-                      <span className="focused-dark-horse-potential">
-                        #{horse.currentRank} → could be <strong>#{horse.bestCaseRank}</strong>
-                        {horse.couldBeatLeader && <span className="focused-dark-horse-crown">👑</span>}
+            {/* Rising Players Banner */}
+            {risingPlayers.length > 0 && !risingDismissed && (
+              <div className={`focused-rising-banner ${risingExpanded ? "expanded" : ""}`}>
+                <div
+                  className="focused-rising-banner-content"
+                  onClick={() => risingPlayers.length > 1 && setRisingExpanded(!risingExpanded)}
+                  role={risingPlayers.length > 1 ? "button" : undefined}
+                  style={{ cursor: risingPlayers.length > 1 ? "pointer" : "default" }}
+                >
+                  <span className="focused-rising-banner-icon">🔥</span>
+                  <div className="focused-rising-banner-main">
+                    <span className="focused-rising-banner-text">
+                      <strong>{risingPlayers[0].name}</strong> jumped {risingPlayers[0].change} spots
+                    </span>
+                    {risingPlayers.length > 1 && !risingExpanded && (
+                      <span className="focused-rising-banner-more">
+                        +{risingPlayers.length - 1} more ▼
                       </span>
-                    </div>
-                  ))}
+                    )}
+                  </div>
                 </div>
-                <div className="focused-dark-horse-footer">
-                  {unansweredCount} questions remaining
-                </div>
+
+                {/* Expanded list */}
+                {risingExpanded && risingPlayers.length > 1 && (
+                  <div className="focused-rising-expanded">
+                    {risingPlayers.slice(1).map((player) => (
+                      <div key={player.email} className="focused-rising-expanded-item">
+                        <strong>{player.name}</strong> +{player.change} spots
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <button
+                  className="focused-rising-banner-dismiss"
+                  onClick={() => setRisingDismissed(true)}
+                  aria-label="Dismiss"
+                >
+                  ×
+                </button>
               </div>
             )}
 
-            {/* Answers Section - Shows selected player's answers */}
-            <ExpandableSection
-              title={selectedPlayer ? `📝 ${selectedPlayer.name}'s Answers` : "📝 Answers"}
-              meta={myAnswers ? `${myAnswers.filter(a => a.is_correct).length}/${myAnswers.filter(a => a.official_answer).length} correct` : ""}
-            >
-              {!selectedPlayer ? (
-                <div className="focused-no-answers">
-                  Select a player from the leaderboard to see their answers.
-                </div>
-              ) : answersLoading ? (
-                <div className="focused-loading">Loading answers...</div>
-              ) : myAnswers ? (
-                <div className="focused-my-answers">
-                  {myAnswers.map((answer, idx) => (
-                    <div
-                      key={idx}
-                      className={`focused-answer-row ${
-                        answer.official_answer
-                          ? answer.is_correct
-                            ? "correct"
-                            : "incorrect"
-                          : "pending"
-                      }`}
-                    >
-                      <div className="focused-answer-question">{answer.question}</div>
-                      <div className="focused-answer-details">
-                        <span className="focused-answer-yours">
-                          Pick: <strong>{answer.user_answer || "—"}</strong>
-                        </span>
-                        {answer.official_answer && (
-                          <>
-                            <span className="focused-answer-official">
-                              Answer: <strong>{answer.official_answer}</strong>
-                            </span>
-                            <span className="focused-answer-result">
-                              {answer.is_correct ? `✓ +${answer.points}` : "✗"}
-                            </span>
-                          </>
+            {/* Tabbed Insights Panel */}
+            <div className="focused-insights">
+              <div className="focused-insights-tabs">
+                <button
+                  className={`focused-insights-tab ${activeTab === "latest" ? "active" : ""}`}
+                  onClick={() => setActiveTab("latest")}
+                >
+                  Latest
+                  {sortedQuestions.length > 0 && (
+                    <span className="focused-tab-badge">{sortedQuestions.length}</span>
+                  )}
+                </button>
+                <button
+                  className={`focused-insights-tab ${activeTab === "picks" ? "active" : ""}`}
+                  onClick={() => setActiveTab("picks")}
+                >
+                  My Picks
+                  {myAnswers && (
+                    <span className="focused-tab-badge">
+                      {myAnswers.filter(a => a.is_correct).length}/{myAnswers.filter(a => a.official_answer).length}
+                    </span>
+                  )}
+                </button>
+                {selectedPlayer && whatIf && whatIf.unansweredCount > 0 && (
+                  <button
+                    className={`focused-insights-tab ${activeTab === "whatif" ? "active" : ""}`}
+                    onClick={() => setActiveTab("whatif")}
+                  >
+                    What-If
+                  </button>
+                )}
+              </div>
+
+              <div className="focused-insights-content">
+                {/* Latest Tab */}
+                {activeTab === "latest" && (
+                  <div className="focused-tab-panel">
+                    {sortedQuestions.length === 0 ? (
+                      <div className="focused-empty-state">
+                        No questions answered yet. Check back soon!
+                      </div>
+                    ) : (
+                      <div className="focused-questions">
+                        {sortedQuestions.map((q, idx) => {
+                          const userAnswer = myAnswers?.find(a => a.question === q.question);
+                          const points = q.points || 1;
+                          const correctCount = q.correct_count || 0;
+                          const totalAnswered = q.total_answered || 0;
+                          const correctPct = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
+                          return (
+                            <div key={idx} className="focused-question">
+                              <div className="focused-question-text">{q.question}</div>
+                              <div className="focused-answer-row">
+                                <span className="focused-answer">{q.answer}</span>
+                                <span className={`focused-points ${points > 1 ? "bonus" : ""}`}>
+                                  {points} pt{points !== 1 ? "s" : ""}
+                                </span>
+                              </div>
+                              {totalAnswered > 0 && (
+                                <div className="focused-question-stats">
+                                  <div className="focused-stats-bar">
+                                    <div
+                                      className="focused-stats-fill"
+                                      style={{ width: `${correctPct}%` }}
+                                    />
+                                  </div>
+                                  <span className="focused-stats-text">
+                                    {correctPct}% correct ({correctCount}/{totalAnswered})
+                                  </span>
+                                </div>
+                              )}
+                              {userAnswer && (
+                                <div className={`focused-question-my-answer ${
+                                  userAnswer.is_correct ? "correct" : "incorrect"
+                                }`}>
+                                  You: <strong>{userAnswer.user_answer || "—"}</strong>
+                                  {userAnswer.is_correct ? " ✓" : " ✗"}
+                                </div>
+                              )}
+                              <div className="focused-time">{formatTimeAgo(q.updated)}</div>
+                            </div>
+                          );
+                        })}
+
+                        {/* Gotchas inline at bottom of Latest */}
+                        {shamefulQuestions.length > 0 && (
+                          <div className="focused-gotchas">
+                            <div className="focused-gotchas-header">
+                              😬 Gotchas ({shamefulQuestions.length})
+                            </div>
+                            {shamefulQuestions.slice(0, 3).map((q, idx) => (
+                              <div key={idx} className="focused-gotcha-item">
+                                <span className="focused-gotcha-question">{q.question}</span>
+                                <span className="focused-gotcha-stat">{q.wrongPct}% wrong</span>
+                              </div>
+                            ))}
+                          </div>
                         )}
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="focused-no-answers">
-                  No answers found for {selectedPlayer.name}.
-                </div>
-              )}
-            </ExpandableSection>
-
-            {/* Questions Section */}
-            <ExpandableSection
-              title="📋 Latest Questions"
-              meta={`${sortedQuestions.length} answered`}
-            >
-              <div className="focused-questions">
-                {sortedQuestions.map((q, idx) => {
-                  // Find user's answer for this question
-                  const userAnswer = myAnswers?.find(a => a.question === q.question);
-                  const points = q.points || 1;
-                  const correctCount = q.correct_count || 0;
-                  const totalAnswered = q.total_answered || 0;
-                  const correctPct = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
-                  return (
-                    <div key={idx} className="focused-question">
-                      <div className="focused-question-text">{q.question}</div>
-                      <div className="focused-answer-row">
-                        <span className="focused-answer">{q.answer}</span>
-                        <span className={`focused-points ${points > 1 ? "bonus" : ""}`}>
-                          {points} pt{points !== 1 ? "s" : ""}
-                        </span>
-                      </div>
-                      {totalAnswered > 0 && (
-                        <div className="focused-question-stats">
-                          <div className="focused-stats-bar">
-                            <div
-                              className="focused-stats-fill"
-                              style={{ width: `${correctPct}%` }}
-                            />
-                          </div>
-                          <span className="focused-stats-text">
-                            {correctPct}% got this right ({correctCount}/{totalAnswered})
-                          </span>
-                        </div>
-                      )}
-                      {userAnswer && (
-                        <div className={`focused-question-my-answer ${
-                          userAnswer.is_correct ? "correct" : "incorrect"
-                        }`}>
-                          You picked: <strong>{userAnswer.user_answer || "—"}</strong>
-                          {userAnswer.is_correct ? " ✓" : " ✗"}
-                        </div>
-                      )}
-                      <div className="focused-time">{formatTimeAgo(q.updated)}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            </ExpandableSection>
-
-            {/* Shame Board - Questions where majority got it wrong */}
-            {shamefulQuestions.length > 0 && (
-              <ExpandableSection
-                title="😬 Shame Board"
-                meta={`${shamefulQuestions.length} gotchas`}
-              >
-                <div className="focused-shame-board">
-                  <div className="focused-shame-intro">
-                    Questions where most players got it wrong:
+                    )}
                   </div>
-                  {shamefulQuestions.map((q, idx) => (
-                    <div key={idx} className="focused-shame-item">
-                      <div className="focused-shame-question">{q.question}</div>
-                      <div className="focused-shame-answer">
-                        Answer: <strong>{q.answer}</strong>
+                )}
+
+                {/* My Picks Tab */}
+                {activeTab === "picks" && (
+                  <div className="focused-tab-panel">
+                    {!selectedPlayer ? (
+                      <div className="focused-empty-state">
+                        Select yourself from the leaderboard to see your picks.
                       </div>
-                      <div className="focused-shame-stats">
-                        <span className="focused-shame-wrong">
-                          {q.wrongPct}% got this wrong
-                        </span>
-                        <span className="focused-shame-count">
-                          (only {q.correct_count}/{q.total_answered} correct)
-                        </span>
+                    ) : answersLoading ? (
+                      <div className="focused-loading">Loading...</div>
+                    ) : myAnswers ? (
+                      <div className="focused-my-answers">
+                        {myAnswers.map((answer, idx) => (
+                          <div
+                            key={idx}
+                            className={`focused-answer-item ${
+                              answer.official_answer
+                                ? answer.is_correct
+                                  ? "correct"
+                                  : "incorrect"
+                                : "pending"
+                            }`}
+                          >
+                            <div className="focused-answer-question">{answer.question}</div>
+                            <div className="focused-answer-details">
+                              <span className="focused-answer-yours">
+                                {answer.user_answer || "—"}
+                              </span>
+                              {answer.official_answer && (
+                                <>
+                                  <span className="focused-answer-arrow">→</span>
+                                  <span className="focused-answer-official">
+                                    {answer.official_answer}
+                                  </span>
+                                  <span className="focused-answer-result">
+                                    {answer.is_correct ? `+${answer.points}` : "✗"}
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="focused-empty-state">
+                        No answers found for {selectedPlayer.name}.
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* What-If Tab */}
+                {activeTab === "whatif" && selectedPlayer && whatIf && (
+                  <div className="focused-tab-panel">
+                    <div className="focused-what-if">
+                      <div className="focused-what-if-summary">
+                        <strong>{whatIf.unansweredCount}</strong> questions remaining
+                      </div>
+
+                      <div className="focused-what-if-scenarios">
+                        <div className="focused-what-if-scenario best">
+                          <div className="focused-what-if-label">Best</div>
+                          <div className="focused-what-if-rank">#{whatIf.bestCaseRank}</div>
+                          <div className="focused-what-if-score">{whatIf.bestCaseScore} pts</div>
+                        </div>
+
+                        <div className="focused-what-if-scenario current">
+                          <div className="focused-what-if-label">Now</div>
+                          <div className="focused-what-if-rank">#{whatIf.currentRank}</div>
+                          <div className="focused-what-if-score">{whatIf.currentScore} pts</div>
+                        </div>
+
+                        <div className="focused-what-if-scenario worst">
+                          <div className="focused-what-if-label">Worst</div>
+                          <div className="focused-what-if-rank">#{whatIf.worstCaseRank}</div>
+                          <div className="focused-what-if-score">{whatIf.worstCaseScore} pts</div>
+                        </div>
+                      </div>
+
+                      <div className="focused-what-if-footer">
+                        Final rank: #{whatIf.bestCaseRank} to #{whatIf.worstCaseRank}
                       </div>
                     </div>
-                  ))}
-                </div>
-              </ExpandableSection>
-            )}
+                  </div>
+                )}
+              </div>
+            </div>
           </>
         )}
       </div>

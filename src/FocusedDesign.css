@@ -1047,88 +1047,6 @@ body {
   }
 }
 
-/* ==================== DARK HORSE ALERT ==================== */
-.focused-dark-horse-alert {
-  background: linear-gradient(135deg, rgba(240, 136, 62, 0.15) 0%, rgba(240, 136, 62, 0.08) 100%);
-  border: 1px solid rgba(240, 136, 62, 0.4);
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 0.75rem;
-}
-
-.focused-dark-horse-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.focused-dark-horse-icon {
-  font-size: 1.25rem;
-}
-
-.focused-dark-horse-title {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #f0883e;
-}
-
-.focused-dark-horse-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.focused-dark-horse-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
-  padding: 0.5rem 0.75rem;
-}
-
-.focused-dark-horse-name {
-  font-size: 0.85rem;
-  color: #c9d1d9;
-  font-weight: 500;
-}
-
-.focused-dark-horse-potential {
-  font-size: 0.75rem;
-  color: #8b949e;
-}
-
-.focused-dark-horse-potential strong {
-  color: #f0883e;
-}
-
-.focused-dark-horse-crown {
-  margin-left: 0.25rem;
-}
-
-.focused-dark-horse-footer {
-  margin-top: 0.5rem;
-  font-size: 0.7rem;
-  color: #8b949e;
-  text-align: center;
-}
-
-/* Mobile adjustments for Dark Horse */
-@media (max-width: 480px) {
-  .focused-dark-horse-alert {
-    padding: 0.75rem;
-  }
-
-  .focused-dark-horse-item {
-    padding: 0.4rem 0.6rem;
-  }
-
-  .focused-dark-horse-name {
-    font-size: 0.8rem;
-  }
-}
-
 /* ==================== GAME OVER SUMMARY ==================== */
 .focused-game-summary {
   background: linear-gradient(135deg, #1a2332 0%, #161b22 100%);
@@ -1293,5 +1211,335 @@ body {
 
   .focused-summary-stat-value {
     font-size: 1.25rem;
+  }
+}
+
+/* ==================== CONSOLIDATED UI - TABBED INSIGHTS ==================== */
+
+/* Rising Players Banner */
+.focused-rising-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #1a1f2e 0%, #161b22 100%);
+  border: 1px solid #30363d;
+  border-left: 3px solid #f85149;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.focused-rising-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.focused-rising-banner-icon {
+  font-size: 1.25rem;
+}
+
+.focused-rising-banner-text {
+  font-size: 0.85rem;
+  color: #c9d1d9;
+}
+
+.focused-rising-banner-text strong {
+  color: #f85149;
+}
+
+.focused-rising-banner-more {
+  font-size: 0.75rem;
+  color: #8b949e;
+  background: #21262d;
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+}
+
+.focused-rising-banner-dismiss {
+  background: none;
+  border: none;
+  color: #8b949e;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.focused-rising-banner-dismiss:hover {
+  opacity: 1;
+  color: #c9d1d9;
+}
+
+.focused-rising-banner-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.focused-rising-banner.expanded {
+  flex-direction: column;
+  align-items: stretch;
+  position: relative;
+}
+
+.focused-rising-banner.expanded .focused-rising-banner-content {
+  width: 100%;
+}
+
+.focused-rising-banner.expanded .focused-rising-banner-dismiss {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}
+
+.focused-rising-expanded {
+  padding: 0.5rem 0 0 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.focused-rising-expanded-item {
+  font-size: 0.8rem;
+  color: #c9d1d9;
+  padding: 0.25rem 0;
+  border-top: 1px solid #21262d;
+}
+
+.focused-rising-expanded-item strong {
+  color: #f85149;
+}
+
+/* Tabbed Insights Panel */
+.focused-insights {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.focused-insights-tabs {
+  display: flex;
+  background: #0d1117;
+  border-bottom: 1px solid #30363d;
+  padding: 0;
+}
+
+.focused-insights-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #8b949e;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.875rem 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.15s ease;
+  position: relative;
+  font-family: inherit;
+}
+
+.focused-insights-tab:hover {
+  color: #c9d1d9;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.focused-insights-tab.active {
+  color: #58a6ff;
+}
+
+.focused-insights-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #58a6ff;
+}
+
+.focused-tab-badge {
+  font-size: 0.7rem;
+  background: #21262d;
+  color: #8b949e;
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.focused-insights-tab.active .focused-tab-badge {
+  background: rgba(88, 166, 255, 0.15);
+  color: #58a6ff;
+}
+
+.focused-insights-content {
+  max-height: 450px;
+  overflow-y: auto;
+}
+
+.focused-tab-panel {
+  padding: 1rem;
+}
+
+.focused-empty-state {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #8b949e;
+  font-size: 0.9rem;
+}
+
+/* Gotchas section at bottom of Latest tab */
+.focused-gotchas {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #21262d;
+}
+
+.focused-gotchas-header {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #f0883e;
+  margin-bottom: 0.75rem;
+}
+
+.focused-gotcha-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  font-size: 0.8rem;
+  border-bottom: 1px solid #21262d;
+}
+
+.focused-gotcha-item:last-child {
+  border-bottom: none;
+}
+
+.focused-gotcha-question {
+  color: #c9d1d9;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 0.75rem;
+}
+
+.focused-gotcha-stat {
+  color: #f85149;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* My Picks tab - simplified answer items */
+.focused-answer-item {
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  background: #0d1117;
+  border-left: 3px solid #30363d;
+}
+
+.focused-answer-item.correct {
+  border-left-color: #3fb950;
+}
+
+.focused-answer-item.incorrect {
+  border-left-color: #f85149;
+}
+
+.focused-answer-item.pending {
+  border-left-color: #8b949e;
+  opacity: 0.7;
+}
+
+.focused-answer-item .focused-answer-question {
+  font-size: 0.8rem;
+  color: #8b949e;
+  margin-bottom: 0.35rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.focused-answer-item .focused-answer-details {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.focused-answer-item .focused-answer-yours {
+  color: #c9d1d9;
+  font-weight: 500;
+}
+
+.focused-answer-item .focused-answer-arrow {
+  color: #484f58;
+}
+
+.focused-answer-item .focused-answer-official {
+  color: #8b949e;
+}
+
+.focused-answer-item .focused-answer-result {
+  margin-left: auto;
+  font-weight: 600;
+}
+
+.focused-answer-item.correct .focused-answer-result {
+  color: #3fb950;
+}
+
+.focused-answer-item.incorrect .focused-answer-result {
+  color: #f85149;
+}
+
+/* Mobile adjustments for consolidated UI */
+@media (max-width: 480px) {
+  .focused-rising-banner {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .focused-rising-banner-text {
+    font-size: 0.8rem;
+  }
+
+  .focused-insights-tab {
+    font-size: 0.8rem;
+    padding: 0.75rem 0.25rem;
+  }
+
+  .focused-tab-badge {
+    font-size: 0.65rem;
+    padding: 0.05rem 0.3rem;
+  }
+
+  .focused-insights-content {
+    max-height: 400px;
+  }
+
+  .focused-tab-panel {
+    padding: 0.75rem;
   }
 }
