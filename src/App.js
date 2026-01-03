@@ -524,11 +524,13 @@ function App() {
                   className="focused-find-btn"
                   onClick={() => {
                     // Use flushSync to force DOM update before focus
-                    // This ensures input is visible when we focus it
                     flushSync(() => {
                       setLeaderboardExpanded(true);
                     });
-                    // Now input is visible, focus triggers mobile keyboard
+                    // Force reflow to ensure browser processed display change
+                    // eslint-disable-next-line no-unused-expressions
+                    searchInputRef.current?.offsetHeight;
+                    // Now input is truly visible, focus triggers mobile keyboard
                     searchInputRef.current?.focus();
                     // Scroll to search input
                     setTimeout(() => {
