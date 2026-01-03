@@ -12,7 +12,13 @@ export const calculateWhatIf = (selectedPlayer, players, myAnswers) => {
   }
 
   // Find unanswered questions (where official_answer is empty/null but user has answered)
-  const unansweredQuestions = myAnswers.filter(a => !a.official_answer && a.user_answer);
+  // Filter out garbage columns that look like "Column X" placeholders
+  const unansweredQuestions = myAnswers.filter(a =>
+    !a.official_answer &&
+    a.user_answer &&
+    a.question &&
+    !a.question.match(/^Column \d+$/)  // Exclude "Column 71", "Column 73", etc.
+  );
 
   if (unansweredQuestions.length === 0) {
     return null; // All questions answered, no predictions to make
