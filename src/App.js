@@ -302,26 +302,28 @@ function App() {
           <div className="focused-loading">Loading leaderboard...</div>
         ) : (
           <>
-            {/* Hero Score - Primary Focus */}
+            {/* Hero Rank - Primary Focus */}
             {selectedPlayer ? (
               <div className="focused-hero">
                 <div className="focused-hero-name">{selectedPlayer.name}</div>
-                <div className="focused-hero-score">{selectedPlayer.score}</div>
-                <div className="focused-hero-label">points</div>
-                <div className="focused-hero-rank">
-                  <span>
-                    Rank <strong>#{selectedRank}</strong>
-                    {selectedTieCount > 1 && (
-                      <span className="focused-tie-info">
-                        {" "}(tied with {selectedTieCount - 1} other{selectedTieCount > 2 ? "s" : ""})
-                      </span>
-                    )}
-                    {" "}of {players.length}
-                  </span>
+                <div className="focused-hero-rank-big">
+                  {selectedTieCount > 1 ? `T-${selectedRank}` : `#${selectedRank}`}
+                </div>
+                <div className="focused-hero-label">
+                  of {players.length} players
                   <TrendIndicator
                     trend={selectedTrend}
                     className="focused-hero-trend"
                   />
+                </div>
+                <div className="focused-hero-score-pill">
+                  <span className="focused-hero-score-value">{selectedPlayer.score}</span>
+                  <span className="focused-hero-score-label">pts</span>
+                  {selectedTieCount > 1 && (
+                    <span className="focused-tie-info">
+                      tied with {selectedTieCount - 1} other{selectedTieCount > 2 ? "s" : ""}
+                    </span>
+                  )}
                 </div>
                 <button
                   className="focused-hero-clear"
