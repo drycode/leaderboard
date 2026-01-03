@@ -315,6 +315,47 @@ function App() {
     .sort((a, b) => a.correctPct - b.correctPct) // Most shameful first
     .slice(0, 5); // Top 5 shameful
 
+  // Dark Horse Alert: Players who could surge to top positions
+  const unansweredCount = latestQuestions.filter(q => !q.answer).length;
+  const darkHorses = (() => {
+    if (unansweredCount === 0 || players.length < 4) return [];
+
+    // Get current top 3 scores
+    const sortedByScore = [...players].sort((a, b) => b.score - a.score);
+    const top3Score = sortedByScore[2]?.score ?? 0; // 3rd place score
+    const leaderScore = sortedByScore[0]?.score ?? 0;
+
+    // Find players outside top 3 who could jump into top 3
+    return players
+      .filter((p) => {
+        const currentRank = rankMap.get(p.score)?.rank ?? 999;
+        if (currentRank <= 3) return false; // Already in top 3
+
+        const bestCaseScore = p.score + unansweredCount;
+        // Could they beat current 3rd place?
+        return bestCaseScore > top3Score;
+      })
+      .map((p) => {
+        const bestCaseScore = p.score + unansweredCount;
+        // Calculate best case rank
+        let bestRank = 1;
+        for (const other of players) {
+          if (other.email !== p.email && other.score > bestCaseScore) {
+            bestRank++;
+          }
+        }
+        return {
+          ...p,
+          currentRank: rankMap.get(p.score)?.rank ?? 999,
+          bestCaseScore,
+          bestCaseRank: bestRank,
+          couldBeatLeader: bestCaseScore > leaderScore,
+        };
+      })
+      .sort((a, b) => a.bestCaseRank - b.bestCaseRank)
+      .slice(0, 3); // Top 3 dark horses
+  })();
+
   return (
     <div className="focused-app">
       <div className="focused-container">
@@ -385,6 +426,30 @@ function App() {
                 >
                   Find Me
                 </button>
+              </div>
+            )}
+
+            {/* Dark Horse Alert */}
+            {darkHorses.length > 0 && (
+              <div className="focused-dark-horse-alert">
+                <div className="focused-dark-horse-header">
+                  <span className="focused-dark-horse-icon">🐴</span>
+                  <span className="focused-dark-horse-title">Dark Horse Alert</span>
+                </div>
+                <div className="focused-dark-horse-list">
+                  {darkHorses.map((horse, idx) => (
+                    <div key={horse.email} className="focused-dark-horse-item">
+                      <span className="focused-dark-horse-name">{horse.name}</span>
+                      <span className="focused-dark-horse-potential">
+                        #{horse.currentRank} → could be <strong>#{horse.bestCaseRank}</strong>
+                        {horse.couldBeatLeader && <span className="focused-dark-horse-crown">👑</span>}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div className="focused-dark-horse-footer">
+                  {unansweredCount} questions remaining
+                </div>
               </div>
             )}
 
