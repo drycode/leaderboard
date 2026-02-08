@@ -188,20 +188,12 @@ function App() {
   const [myAnswers, setMyAnswers] = useState(null);
   const [answersLoading, setAnswersLoading] = useState(false);
 
-  // Insights tab state
-  const [activeTab, setActiveTab] = useState("latest");
+  // Insights tab state (on mobile, "leaderboard" is also a valid tab)
+  const [activeTab, setActiveTab] = useState(() => isMobile() ? "leaderboard" : "latest");
 
   // Rising banner state
   const [risingDismissed, setRisingDismissed] = useState(false);
   const [risingExpanded, setRisingExpanded] = useState(false);
-
-  // Mobile section state: which section is expanded ("leaderboard" or "insights")
-  // On desktop, both can be expanded independently
-  const [mobileActiveSection, setMobileActiveSection] = useState("leaderboard");
-
-  // Derived expansion states
-  const leaderboardExpanded = !isMobile() || mobileActiveSection === "leaderboard";
-  const insightsExpanded = !isMobile() || mobileActiveSection === "insights";
 
   // Selected player (persisted to localStorage)
   const [selectedEmail, setSelectedEmail] = useState(
@@ -267,12 +259,9 @@ function App() {
     localStorage.removeItem("selectedEmail");
   };
 
-  // Handle tab selection (also expands insights on mobile)
+  // Handle tab selection
   const handleTabSelect = (tab) => {
     setActiveTab(tab);
-    if (isMobile()) {
-      setMobileActiveSection("insights");
-    }
   };
 
   // Load answers when selected player changes
@@ -415,7 +404,7 @@ function App() {
       <div className="focused-container">
         {/* Header */}
         <div className="focused-header">
-          <span className="focused-title">Super Bowl LIX</span>
+          <span className="focused-title">Super Bowl LX</span>
           <div className="focused-header-right">
             <div className={`focused-live ${isConnected ? "" : "disconnected"}`}>
               <span className="focused-live-dot"></span>
@@ -489,7 +478,7 @@ function App() {
                 )}
 
                 <div className="focused-summary-footer">
-                  Super Bowl LIX • {selectedPlayer?.name}
+                  Super Bowl LX • {selectedPlayer?.name}
                 </div>
               </div>
             )}
@@ -536,21 +525,23 @@ function App() {
                 <button
                   className="focused-find-btn"
                   onClick={() => {
-                    // Use flushSync to force DOM update before focus
-                    flushSync(() => {
-                      setMobileActiveSection("leaderboard");
-                    });
-                    // Force reflow to ensure browser processed display change
-                    // eslint-disable-next-line no-unused-expressions
-                    searchInputRef.current?.offsetHeight;
-                    // Now input is truly visible, focus triggers mobile keyboard
-                    searchInputRef.current?.focus();
-                    // Scroll to search input
-                    setTimeout(() => {
+                    // On mobile, switch to leaderboard tab; on desktop, scroll to section
+                    if (isMobile()) {
+                      flushSync(() => {
+                        setActiveTab("leaderboard");
+                      });
+                      // Force reflow then focus search
+                      // eslint-disable-next-line no-unused-expressions
+                      searchInputRef.current?.offsetHeight;
+                      searchInputRef.current?.focus();
+                    } else {
                       document
-                        .querySelector(".focused-search")
-                        ?.scrollIntoView({ behavior: "smooth", block: "center" });
-                    }, 50);
+                        .querySelector(".focused-section")
+                        ?.scrollIntoView({ behavior: "smooth" });
+                      setTimeout(() => {
+                        searchInputRef.current?.focus();
+                      }, 300);
+                    }
                   }}
                 >
                   Find Me
@@ -558,12 +549,11 @@ function App() {
               </div>
             )}
 
-            {/* Leaderboard Section */}
+            {/* Leaderboard Section - hidden on mobile (shown as tab instead) */}
             <ExpandableSection
               title="🏆 Leaderboard"
               meta={`${players.length} players`}
-              expanded={leaderboardExpanded}
-              onToggle={() => setMobileActiveSection(leaderboardExpanded ? "insights" : "leaderboard")}
+              defaultExpanded={true}
             >
               <div className="focused-search">
                 <input
@@ -651,8 +641,16 @@ function App() {
             )}
 
             {/* Tabbed Insights Panel */}
-            <div className={`focused-insights ${insightsExpanded ? "expanded" : "collapsed"}`}>
+            <div className="focused-insights">
               <div className="focused-insights-tabs">
+                {/* Leaderboard tab - mobile only */}
+                <button
+                  className={`focused-insights-tab mobile-only ${activeTab === "leaderboard" ? "active" : ""}`}
+                  onClick={() => handleTabSelect("leaderboard")}
+                >
+                  🏆
+                  <span className="focused-tab-badge">{players.length}</span>
+                </button>
                 <button
                   className={`focused-insights-tab ${activeTab === "latest" ? "active" : ""}`}
                   onClick={() => handleTabSelect("latest")}
@@ -666,7 +664,7 @@ function App() {
                   className={`focused-insights-tab ${activeTab === "picks" ? "active" : ""}`}
                   onClick={() => handleTabSelect("picks")}
                 >
-                  My Picks
+                  {selectedPlayer ? `${selectedPlayer.name.split(' ')[0]}'s Picks` : 'Picks'}
                   {myAnswers && (
                     <span className="focused-tab-badge">
                       {myAnswers.filter(a => a.is_correct).length}/{myAnswers.filter(a => a.official_answer).length}
@@ -693,6 +691,52 @@ function App() {
               </div>
 
               <div className="focused-insights-content">
+                {/* Leaderboard Tab - mobile only */}
+                {activeTab === "leaderboard" && (
+                  <div className="focused-tab-panel focused-tab-leaderboard">
+                    <div className="focused-search">
+                      <input
+                        ref={searchInputRef}
+                        type="text"
+                        placeholder="Search players..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
+                    <div className="focused-rows">
+                      {filteredPlayers.map((player) => {
+                        const rankInfo = rankMap.get(player.score);
+                        const rank = rankInfo?.rank ?? 1;
+                        const tieCount = rankInfo?.tieCount ?? 1;
+                        const isMe = player.email === selectedEmail;
+                        const playerTrend = trends[player.email];
+
+                        return (
+                          <div
+                            key={player.email}
+                            className={`focused-row ${isMe ? "me" : ""}`}
+                            onClick={() => handlePlayerSelect(player.email)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyPress={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                handlePlayerSelect(player.email);
+                              }
+                            }}
+                          >
+                            <span className="focused-rank">
+                              {tieCount > 1 ? `T-${rank}` : rank}
+                            </span>
+                            <span className="focused-name">{player.name}</span>
+                            <TrendIndicator trend={playerTrend} />
+                            <span className="focused-score">{player.score}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 {/* Latest Tab */}
                 {activeTab === "latest" && (
                   <div className="focused-tab-panel">
@@ -863,7 +907,7 @@ function App() {
                           >
                             {userGotItRight && (
                               <div className="focused-gotcha-celebration">
-                                🎉 You beat the odds!
+                                🎉 {selectedPlayer?.name.split(' ')[0]} beat the odds!
                               </div>
                             )}
                             <div className="focused-gotcha-question">{q.question}</div>
