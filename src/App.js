@@ -149,13 +149,13 @@ const TrendIndicator = ({ trend, className = "" }) => {
 };
 
 // Expandable Section component
-const ExpandableSection = ({ title, meta, children, defaultExpanded = false, expanded: controlledExpanded, onToggle }) => {
+const ExpandableSection = ({ title, meta, children, defaultExpanded = false, expanded: controlledExpanded, onToggle, className = "" }) => {
   const [internalExpanded, setInternalExpanded] = useState(defaultExpanded);
   const expanded = controlledExpanded !== undefined ? controlledExpanded : internalExpanded;
   const setExpanded = onToggle || setInternalExpanded;
 
   return (
-    <div className={`focused-section ${expanded ? "expanded" : ""}`}>
+    <div className={`focused-section ${expanded ? "expanded" : ""} ${className}`}>
       <div
         className="focused-section-header"
         onClick={() => setExpanded(!expanded)}
@@ -549,11 +549,12 @@ function App() {
               </div>
             )}
 
-            {/* Leaderboard Section - hidden on mobile (shown as tab instead) */}
+            {/* Leaderboard Section - hidden on mobile when player selected (shown as tab instead) */}
             <ExpandableSection
               title="🏆 Leaderboard"
               meta={`${players.length} players`}
               defaultExpanded={true}
+              className={selectedPlayer ? "hide-on-mobile" : ""}
             >
               <div className="focused-search">
                 <input
